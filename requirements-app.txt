@@ -1,0 +1,6 @@
+PySide6
+Pillow
+pypdfium2
+pywin32
+openpyxl
+aspose-pdf
