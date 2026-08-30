@@ -36,14 +36,10 @@ La aplicación puede utilizar:
 
 ## Instalación
 
-Descarga la versión más reciente desde la sección **Releases** del repositorio y ejecuta:
+La aplicación está disponible para **Windows de 64 bits**.
 
-`ConvertidorArchivos_Setup_1.0.1.exe`
+[Descargar Convertidor de Archivos 1.0.1](https://github.com/RobDev512/ConvertidorArchivos/releases/download/v1.0.1/ConvertidorArchivos_Setup_1.0.1.exe)
 
-El instalador incluye los motores necesarios para las funciones principales.
+Ejecuta el instalador y sigue los pasos indicados.
 
-## Estado del proyecto
-
-Versión estable actual: **1.0.1**
-
-Las futuras herramientas adicionales se desarrollarán a partir de la versión **1.1.0**.
+No es necesario instalar Python ni los motores incluidos por separado.
