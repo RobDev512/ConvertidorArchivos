@@ -3,6 +3,7 @@ import os
 import sys
 
 from PySide6.QtGui import QIcon
+
 from PySide6.QtWidgets import QApplication
 
 from funciones.configuracion_app import (
@@ -13,8 +14,21 @@ from funciones.configuracion_app import (
     obtener_ruta_icono_principal
 )
 
-from interfaz.dialogo_acerca_de import DialogoAcercaDe
-from interfaz.ventana_principal import VentanaPrincipal
+from interfaz.barra_superior import (
+    BarraSuperiorPrincipal
+)
+
+from interfaz.dialogo_acerca_de import (
+    DialogoAcercaDe
+)
+
+from interfaz.ventana_principal import (
+    VentanaPrincipal
+)
+
+from interfaz.herramientas.ventana_herramientas import (
+    VentanaHerramientas
+)
 
 
 # ================================================================
@@ -39,36 +53,189 @@ def configurar_identidad_windows():
 
 
 # ================================================================
-# CONFIGURAR MENÚ DE AYUDA
+# CONFIGURAR BARRA SUPERIOR
 # ================================================================
-def configurar_menu_ayuda(
+def configurar_barra_superior(
     ventana
 ):
 
-    # ----------------------------------- #
-    #            Menú Ayuda               #
-    # ----------------------------------- #
+    barra_superior = BarraSuperiorPrincipal(
+        ventana
+    )
 
-    menu_ayuda = ventana.menuBar().addMenu(
-        "Ayuda"
+    ventana.barra_superior = barra_superior
+
+    ventana.setMenuWidget(
+        barra_superior
     )
 
 
     # ----------------------------------- #
-    #           Acerca de                 #
+    #             Unir PDFs               #
     # ----------------------------------- #
 
-    accion_acerca_de = menu_ayuda.addAction(
-        f"Acerca de {NOMBRE_APLICACION}"
+    barra_superior.unir_pdfs_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "unir_pdf"
+        )
     )
 
 
-    accion_acerca_de.triggered.connect(
-        lambda checked=False:
+    # ----------------------------------- #
+    #           Dividir PDF               #
+    # ----------------------------------- #
+
+    barra_superior.dividir_pdf_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "dividir_pdf"
+        )
+    )
+
+
+    # ----------------------------------- #
+    #         Extraer páginas             #
+    # ----------------------------------- #
+
+    barra_superior.extraer_paginas_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "extraer_paginas"
+        )
+    )
+
+
+    # ----------------------------------- #
+    #        Reordenar páginas            #
+    # ----------------------------------- #
+
+    barra_superior.reordenar_paginas_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "reordenar_paginas"
+        )
+    )
+
+    # ----------------------------------- #
+    #          Comprimir PDF              #
+    # ----------------------------------- #
+
+    barra_superior.comprimir_pdf_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "comprimir_pdf"
+        )
+    )
+
+    # ----------------------------------- #
+    #            Acerca de                #
+    # ----------------------------------- #
+
+    barra_superior.acerca_de_solicitado.connect(
+        lambda:
         mostrar_acerca_de(
             ventana
         )
     )
+
+
+# ================================================================
+# MOSTRAR HERRAMIENTA
+# ================================================================
+def mostrar_herramienta(
+    ventana,
+    herramienta
+):
+
+    # ----------------------------------- #
+    #       Crear ventana una vez         #
+    # ----------------------------------- #
+
+    if (
+        not hasattr(
+            ventana,
+            "ventana_herramientas"
+        )
+        or ventana.ventana_herramientas is None
+    ):
+
+        ventana.ventana_herramientas = (
+            VentanaHerramientas()
+        )
+
+
+        ventana.ventana_herramientas.volver_solicitado.connect(
+            lambda:
+            volver_al_convertidor(
+                ventana
+            )
+        )
+
+
+    # ----------------------------------- #
+    #      Seleccionar herramienta        #
+    # ----------------------------------- #
+
+    ventana.ventana_herramientas.mostrar_herramienta(
+        herramienta
+    )
+
+
+    # ----------------------------------- #
+    #        Centrar herramienta          #
+    # ----------------------------------- #
+
+    ventana.ventana_herramientas.centrar_en_pantalla(
+        ventana
+    )
+
+
+    # ----------------------------------- #
+    #      Ocultar ventana principal      #
+    # ----------------------------------- #
+
+    ventana.hide()
+
+
+    # ----------------------------------- #
+    #        Mostrar herramienta          #
+    # ----------------------------------- #
+
+    ventana.ventana_herramientas.show()
+
+    ventana.ventana_herramientas.raise_()
+
+    ventana.ventana_herramientas.activateWindow()
+
+
+# ================================================================
+# VOLVER AL CONVERTIDOR
+# ================================================================
+def volver_al_convertidor(
+    ventana
+):
+
+    if hasattr(
+        ventana,
+        "ventana_herramientas"
+    ):
+
+        if ventana.ventana_herramientas is not None:
+
+            ventana.ventana_herramientas.hide()
+
+
+    ventana.show()
+
+    ventana.raise_()
+
+    ventana.activateWindow()
 
 
 # ================================================================
@@ -90,25 +257,13 @@ def mostrar_acerca_de(
 # ================================================================
 def crear_aplicacion():
 
-    # ----------------------------------- #
-    #       Identidad para Windows        #
-    # ----------------------------------- #
-
     configurar_identidad_windows()
 
-
-    # ----------------------------------- #
-    #          Crear QApplication         #
-    # ----------------------------------- #
 
     aplicacion = QApplication(
         sys.argv
     )
 
-
-    # ----------------------------------- #
-    #       Información general           #
-    # ----------------------------------- #
 
     aplicacion.setApplicationName(
         NOMBRE_APLICACION
@@ -128,7 +283,7 @@ def crear_aplicacion():
 
 
     # ----------------------------------- #
-    #       Icono general de la app       #
+    #          Icono principal            #
     # ----------------------------------- #
 
     ruta_icono = obtener_ruta_icono_principal()
@@ -157,31 +312,27 @@ def iniciar_aplicacion():
 
 
     # ----------------------------------- #
-    #        Ventana principal            #
+    #         Ventana principal           #
     # ----------------------------------- #
 
     ventana = VentanaPrincipal()
 
 
     # ----------------------------------- #
-    #          Menú de ayuda              #
+    #          Barra superior             #
     # ----------------------------------- #
 
-    configurar_menu_ayuda(
+    configurar_barra_superior(
         ventana
     )
 
 
     # ----------------------------------- #
-    #          Mostrar ventana            #
+    #              Mostrar                #
     # ----------------------------------- #
 
     ventana.show()
 
-
-    # ----------------------------------- #
-    #           Ejecutar Qt               #
-    # ----------------------------------- #
 
     return aplicacion.exec()
 

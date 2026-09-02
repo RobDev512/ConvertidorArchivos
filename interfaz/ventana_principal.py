@@ -52,6 +52,7 @@ from conversiones.previsualizacion import (
 
 from funciones.configuracion_app import NOMBRE_APLICACION
 
+
 # ================================================================
 # VENTANA PRINCIPAL
 # ================================================================
@@ -129,12 +130,12 @@ class VentanaPrincipal(QMainWindow):
 
         self.resize(
             900,
-            650
+            670
         )
 
         self.setMinimumSize(
-            700,
-            500
+            900,
+            670
         )
 
 
@@ -291,6 +292,7 @@ class VentanaPrincipal(QMainWindow):
         )
 
         if not archivos:
+
             return
 
         self.cargar_archivos(
@@ -310,7 +312,6 @@ class VentanaPrincipal(QMainWindow):
             lado
         ] += 1
 
-
         resultado = self.previsualizaciones.get(
             lado
         )
@@ -320,7 +321,6 @@ class VentanaPrincipal(QMainWindow):
             limpiar_previsualizacion(
                 resultado
             )
-
 
         self.previsualizaciones[
             lado
@@ -339,7 +339,6 @@ class VentanaPrincipal(QMainWindow):
         self.invalidar_previsualizacion(
             lado
         )
-
 
         tipo = obtener_tipo_previsualizacion(
             ruta_archivo
@@ -412,7 +411,6 @@ class VentanaPrincipal(QMainWindow):
             hilo
         )
 
-
         registro = {
             "hilo": hilo,
             "trabajador": trabajador
@@ -458,7 +456,6 @@ class VentanaPrincipal(QMainWindow):
             hilo.deleteLater
         )
 
-
         hilo.start()
 
 
@@ -472,7 +469,6 @@ class VentanaPrincipal(QMainWindow):
         resultado
     ):
 
-        # Resultado antiguo
         if token != self.tokens_previsualizacion[
             lado
         ]:
@@ -483,11 +479,9 @@ class VentanaPrincipal(QMainWindow):
 
             return
 
-
         self.previsualizaciones[
             lado
         ] = resultado
-
 
         self.panel_previsualizacion.mostrar_previsualizacion(
             lado,
@@ -509,11 +503,9 @@ class VentanaPrincipal(QMainWindow):
         if token != self.tokens_previsualizacion[
             lado
         ]:
+
             return
 
-
-        # Si falla la vista avanzada,
-        # usar icono del sistema como respaldo
         self.panel_previsualizacion.mostrar_archivo(
             lado,
             ruta_archivo
@@ -555,8 +547,8 @@ class VentanaPrincipal(QMainWindow):
         )
 
         if not resultado:
-            return
 
+            return
 
         if resultado["tipo"] not in {
             "documento",
@@ -564,7 +556,6 @@ class VentanaPrincipal(QMainWindow):
         }:
 
             return
-
 
         actual = resultado[
             "pagina_actual"
@@ -579,13 +570,13 @@ class VentanaPrincipal(QMainWindow):
             + desplazamiento
         )
 
-
         if nueva < 0:
+
             return
 
         if nueva >= cantidad:
-            return
 
+            return
 
         try:
 
@@ -604,7 +595,6 @@ class VentanaPrincipal(QMainWindow):
 
             return
 
-
         resultado[
             "pagina_actual"
         ] = nueva
@@ -612,7 +602,6 @@ class VentanaPrincipal(QMainWindow):
         resultado[
             "datos_imagen"
         ] = datos_imagen
-
 
         self.panel_previsualizacion.mostrar_previsualizacion(
             lado,
@@ -623,7 +612,10 @@ class VentanaPrincipal(QMainWindow):
     # ============================================================
     # CARGAR ARCHIVOS
     # ============================================================
-    def cargar_archivos(self, archivos):
+    def cargar_archivos(
+        self,
+        archivos
+    ):
 
         archivos = list(
             dict.fromkeys(
@@ -640,6 +632,7 @@ class VentanaPrincipal(QMainWindow):
         ]
 
         if not archivos:
+
             return
 
 
@@ -693,7 +686,6 @@ class VentanaPrincipal(QMainWindow):
                 ruta_archivo
             )
 
-
             self.panel_conversion.zona_archivos.actualizar_texto(
                 nombre_archivo
             )
@@ -703,8 +695,6 @@ class VentanaPrincipal(QMainWindow):
                 f"Tipo: {categoria_archivo}"
             )
 
-
-            # Vista original
             self.previsualizar_archivo(
                 "original",
                 ruta_archivo
@@ -729,9 +719,6 @@ class VentanaPrincipal(QMainWindow):
                 f"{cantidad_archivos} archivos seleccionados."
             )
 
-
-            # Mostrar grupo mediante el icono
-            # del primer archivo seleccionado
             self.panel_previsualizacion.mostrar_archivo(
                 "original",
                 archivos[0],
@@ -765,11 +752,9 @@ class VentanaPrincipal(QMainWindow):
 
         formatos_disponibles = []
 
-
         for formato_destino in formatos_posibles:
 
             disponible_para_todos = True
-
 
             for ruta_archivo in self.archivos_seleccionados:
 
@@ -781,8 +766,8 @@ class VentanaPrincipal(QMainWindow):
                 if not disponible:
 
                     disponible_para_todos = False
-                    break
 
+                    break
 
             if disponible_para_todos:
 
@@ -790,11 +775,9 @@ class VentanaPrincipal(QMainWindow):
                     formato_destino
                 )
 
-
         self.panel_conversion.mostrar_formatos_disponibles(
             formatos_disponibles
         )
-
 
         if not formatos_disponibles:
 
@@ -832,7 +815,6 @@ class VentanaPrincipal(QMainWindow):
             nombre_sugerido
         )
 
-
         if (
             extension == ".zip"
             and formato_destino.upper() != "ZIP"
@@ -850,7 +832,6 @@ class VentanaPrincipal(QMainWindow):
                 "Todos los archivos (*.*)"
             )
 
-
         ruta_destino, _ = QFileDialog.getSaveFileName(
             self,
             "Guardar archivo convertido",
@@ -859,8 +840,8 @@ class VentanaPrincipal(QMainWindow):
         )
 
         if not ruta_destino:
-            return None
 
+            return None
 
         return asegurar_extension(
             ruta_destino,
@@ -884,6 +865,7 @@ class VentanaPrincipal(QMainWindow):
         )
 
         if not carpeta_destino:
+
             return None
 
         return carpeta_destino
@@ -918,7 +900,6 @@ class VentanaPrincipal(QMainWindow):
             "¿Qué deseas hacer?"
         )
 
-
         boton_reemplazar = mensaje.addButton(
             "Reemplazar",
             QMessageBox.ButtonRole.AcceptRole
@@ -939,7 +920,6 @@ class VentanaPrincipal(QMainWindow):
             QMessageBox.ButtonRole.RejectRole
         )
 
-
         casilla_aplicar_todos = QCheckBox(
             "Hacer esto para los demás conflictos"
         )
@@ -951,7 +931,6 @@ class VentanaPrincipal(QMainWindow):
         mensaje.exec()
 
         boton_seleccionado = mensaje.clickedButton()
-
 
         if boton_seleccionado == boton_reemplazar:
 
@@ -968,7 +947,6 @@ class VentanaPrincipal(QMainWindow):
         else:
 
             accion = "cancelar"
-
 
         return (
             accion,
@@ -1033,6 +1011,7 @@ class VentanaPrincipal(QMainWindow):
             )
 
             if not ruta_destino:
+
                 return None
 
             return [
@@ -1050,13 +1029,12 @@ class VentanaPrincipal(QMainWindow):
         carpeta_destino = self.seleccionar_carpeta_destino()
 
         if not carpeta_destino:
-            return None
 
+            return None
 
         tareas = []
         rutas_reservadas = set()
         accion_conflictos = None
-
 
         for ruta_origen in self.archivos_seleccionados:
 
@@ -1070,7 +1048,6 @@ class VentanaPrincipal(QMainWindow):
                 nombre_destino
             )
 
-
             if normalizar_ruta(
                 ruta_destino
             ) in rutas_reservadas:
@@ -1079,7 +1056,6 @@ class VentanaPrincipal(QMainWindow):
                     ruta_destino,
                     rutas_reservadas
                 )
-
 
             if os.path.exists(
                 ruta_destino
@@ -1101,16 +1077,15 @@ class VentanaPrincipal(QMainWindow):
 
                     accion = accion_conflictos
 
-
                 if accion == "cancelar":
-                    return None
 
+                    return None
 
                 if accion == "omitir":
 
                     self.archivos_omitidos_conversion += 1
-                    continue
 
+                    continue
 
                 if accion == "copia":
 
@@ -1119,13 +1094,11 @@ class VentanaPrincipal(QMainWindow):
                         rutas_reservadas
                     )
 
-
             rutas_reservadas.add(
                 normalizar_ruta(
                     ruta_destino
                 )
             )
-
 
             tareas.append(
                 {
@@ -1133,7 +1106,6 @@ class VentanaPrincipal(QMainWindow):
                     "ruta_destino": ruta_destino
                 }
             )
-
 
         return tareas
 
@@ -1148,11 +1120,12 @@ class VentanaPrincipal(QMainWindow):
         )
 
         if not formato_destino:
+
             return
 
         if not self.archivos_seleccionados:
-            return
 
+            return
 
         if not self.comprobar_conversion_seleccionada(
             formato_destino
@@ -1160,14 +1133,13 @@ class VentanaPrincipal(QMainWindow):
 
             return
 
-
         tareas = self.preparar_tareas_conversion(
             formato_destino
         )
 
         if tareas is None:
-            return
 
+            return
 
         if not tareas:
 
@@ -1178,7 +1150,6 @@ class VentanaPrincipal(QMainWindow):
             )
 
             return
-
 
         self.iniciar_conversion_segundo_plano(
             tareas,
@@ -1201,7 +1172,6 @@ class VentanaPrincipal(QMainWindow):
             "Convirtiendo..."
         )
 
-
         self.ventana_progreso = VentanaProgreso(
             len(tareas),
             self
@@ -1211,11 +1181,9 @@ class VentanaPrincipal(QMainWindow):
             self.solicitar_cancelacion_conversion
         )
 
-
         self.hilo_conversion = QThread(
             self
         )
-
 
         self.trabajador_conversion = TrabajadorConversion(
             tareas,
@@ -1225,7 +1193,6 @@ class VentanaPrincipal(QMainWindow):
         self.trabajador_conversion.moveToThread(
             self.hilo_conversion
         )
-
 
         self.hilo_conversion.started.connect(
             self.trabajador_conversion.ejecutar
@@ -1263,7 +1230,6 @@ class VentanaPrincipal(QMainWindow):
             self.hilo_conversion.deleteLater
         )
 
-
         self.ventana_progreso.show()
 
         QTimer.singleShot(
@@ -1294,7 +1260,6 @@ class VentanaPrincipal(QMainWindow):
 
         self.archivos_convertidos = archivos_convertidos
 
-
         if conversion_cancelada:
 
             self.ventana_progreso.marcar_cancelada()
@@ -1307,12 +1272,16 @@ class VentanaPrincipal(QMainWindow):
 
             self.ventana_progreso.completar()
 
-
         QTimer.singleShot(
             650,
-            lambda: self.mostrar_resultado_conversion(
-                list(archivos_convertidos),
-                list(errores),
+            lambda:
+            self.mostrar_resultado_conversion(
+                list(
+                    archivos_convertidos
+                ),
+                list(
+                    errores
+                ),
                 conversion_cancelada
             )
         )
@@ -1332,7 +1301,6 @@ class VentanaPrincipal(QMainWindow):
 
             self.ventana_progreso.close()
 
-
         cantidad_convertidos = len(
             archivos_convertidos
         )
@@ -1349,7 +1317,6 @@ class VentanaPrincipal(QMainWindow):
         self.invalidar_previsualizacion(
             "resultado"
         )
-
 
         if cantidad_convertidos == 1:
 
@@ -1398,7 +1365,6 @@ class VentanaPrincipal(QMainWindow):
                     "completar ningún archivo."
                 )
 
-
             self.panel_conversion.etiqueta_estado.setText(
                 "Conversión cancelada."
             )
@@ -1445,14 +1411,12 @@ class VentanaPrincipal(QMainWindow):
                     "convirtieron correctamente."
                 )
 
-
             if cantidad_omitidos:
 
                 texto_aviso += (
                     f"\n\n{cantidad_omitidos} archivo(s) "
                     "fueron omitidos."
                 )
-
 
             QMessageBox.information(
                 self,
@@ -1498,7 +1462,6 @@ class VentanaPrincipal(QMainWindow):
                     )
                 )
 
-
             QMessageBox.warning(
                 self,
                 "Conversión incompleta",
@@ -1522,7 +1485,6 @@ class VentanaPrincipal(QMainWindow):
 
         ancho_ventana = self.width()
 
-
         if ancho_ventana >= self.ancho_minimo_previsualizacion:
 
             if not self.previsualizacion_visible:
@@ -1540,7 +1502,6 @@ class VentanaPrincipal(QMainWindow):
 
                 self.previsualizacion_visible = True
 
-
         else:
 
             if self.previsualizacion_visible:
@@ -1555,7 +1516,10 @@ class VentanaPrincipal(QMainWindow):
     # ============================================================
     # CAMBIO DE TAMAÑO
     # ============================================================
-    def resizeEvent(self, evento):
+    def resizeEvent(
+        self,
+        evento
+    ):
 
         if hasattr(
             self,
@@ -1572,7 +1536,10 @@ class VentanaPrincipal(QMainWindow):
     # ============================================================
     # CERRAR APLICACIÓN
     # ============================================================
-    def closeEvent(self, evento):
+    def closeEvent(
+        self,
+        evento
+    ):
 
         self.invalidar_previsualizacion(
             "original"
@@ -1583,8 +1550,10 @@ class VentanaPrincipal(QMainWindow):
         )
 
 
-        # Esperar a que terminen los trabajos
-        # de previsualización activos
+        # ----------------------------------- #
+        # Esperar trabajos activos            #
+        # ----------------------------------- #
+
         for registro in list(
             self.trabajos_previsualizacion
         ):
@@ -1596,8 +1565,8 @@ class VentanaPrincipal(QMainWindow):
             if hilo.isRunning():
 
                 hilo.quit()
-                hilo.wait()
 
+                hilo.wait()
 
         super().closeEvent(
             evento

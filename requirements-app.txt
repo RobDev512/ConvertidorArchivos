@@ -1,6 +1,7 @@
 PySide6
 Pillow
 pypdfium2
+pypdf
 pywin32
 openpyxl
 aspose-pdf
