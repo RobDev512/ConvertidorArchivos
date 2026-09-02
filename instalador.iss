@@ -1,14 +1,14 @@
 ; ================================================================
-; CONVERTIDOR DE ARCHIVOS 1.0.1
+; CONVERTIDOR DE ARCHIVOS 1.1.0
 ; INSTALADOR OFICIAL
 ; ================================================================
 
 
 #define NombreAplicacion "Convertidor de Archivos"
-#define VersionAplicacion "1.0.1"
+#define VersionAplicacion "1.1.0"
 #define EjecutableAplicacion "ConvertidorArchivos.exe"
 #define CarpetaCompilada "dist\ConvertidorArchivos"
-#define NombreInstalador "ConvertidorArchivos_Setup_1.0.1"
+#define NombreInstalador "ConvertidorArchivos_Setup_1.1.0"
 
 
 ; ================================================================
@@ -55,7 +55,7 @@ RestartApplications=no
 CreateAppDir=yes
 CreateUninstallRegKey=yes
 
-VersionInfoVersion=1.0.1.0
+VersionInfoVersion=1.1.0.0
 VersionInfoProductName={#NombreAplicacion}
 VersionInfoProductVersion={#VersionAplicacion}
 VersionInfoDescription=Instalador de {#NombreAplicacion}

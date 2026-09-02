@@ -451,6 +451,7 @@ class DialogoAcercaDe(QDialog):
             "• 7-Zip\n"
             "• Pandoc\n"
             "• PDFium\n"
+            "• pypdf\n"
             "• Aspose.PDF\n"
             "• Microsoft Office, cuando está disponible\n"
             "• WinRAR, cuando está disponible"

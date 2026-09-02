@@ -3,7 +3,7 @@ setlocal
 
 cd /d "%~dp0"
 
-title Compilar Convertidor de Archivos
+title Compilar Convertidor de Archivos 1.1.0
 
 
 REM ================================================================
@@ -50,7 +50,7 @@ REM COMPILAR APLICACION
 REM ================================================================
 
 echo.
-echo Compilando Convertidor de Archivos...
+echo Compilando Convertidor de Archivos 1.1.0...
 echo.
 
 "%PYTHON%" -m PyInstaller ^
@@ -132,7 +132,7 @@ echo ===============================================================
 echo.
 echo COMPILACION TERMINADA
 echo.
-echo Convertidor de Archivos 1.0 se encuentra en:
+echo Convertidor de Archivos 1.1.0 se encuentra en:
 echo.
 echo %DIST%
 echo.

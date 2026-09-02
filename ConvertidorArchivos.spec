@@ -121,6 +121,19 @@ imports_ocultos += imports_pdfium
 
 
 # ================================================================
+# PYPDF
+# ================================================================
+
+datos_pypdf, binarios_pypdf, imports_pypdf = collect_all(
+    "pypdf"
+)
+
+datos += datos_pypdf
+binarios += binarios_pypdf
+imports_ocultos += imports_pypdf
+
+
+# ================================================================
 # PILLOW
 # ================================================================
 
@@ -158,6 +171,9 @@ imports_ocultos += [
     # PDFium
     "pypdfium2",
     "pypdfium2.raw",
+
+    # pypdf
+    "pypdf",
 
     # Pillow
     "PIL",
