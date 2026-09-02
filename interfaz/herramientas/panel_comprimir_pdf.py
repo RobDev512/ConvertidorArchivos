@@ -108,9 +108,7 @@ def formatear_tamano(
 
         if (
             cantidad < 1024
-            or unidad == unidades[
-                -1
-            ]
+            or unidad == unidades[-1]
         ):
 
             if unidad == "B":
@@ -247,6 +245,25 @@ class PanelComprimirPDF(
 ):
 
     # ============================================================
+    # DIMENSIONES DE LA VENTANA
+    # ============================================================
+
+    ANCHO_INICIAL = 850
+    ALTO_INICIAL = 580
+
+    ANCHO_MINIMO = 850
+    ALTO_MINIMO = 580
+
+
+    # ============================================================
+    # DIMENSIONES DE LA GUÍA ADAPTATIVA
+    # ============================================================
+
+    ANCHO_MINIMO_GUIA = 1000
+    ALTO_MINIMO_GUIA = 700
+
+
+    # ============================================================
     # INICIALIZACIÓN
     # ============================================================
     def __init__(
@@ -270,6 +287,8 @@ class PanelComprimirPDF(
         self.conectar_eventos()
 
         self.actualizar_estado_controles()
+
+        self.actualizar_visibilidad_guia()
 
 
     # ============================================================
@@ -754,10 +773,208 @@ class PanelComprimirPDF(
 
 
         # ========================================================
-        # ESPACIO FLEXIBLE
+        # ESPACIO ADAPTATIVO
         # ========================================================
 
-        self.distribucion.addStretch(
+        self.contenedor_adaptativo = QFrame()
+
+        self.contenedor_adaptativo.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding
+        )
+
+
+        distribucion_adaptativa = QVBoxLayout(
+            self.contenedor_adaptativo
+        )
+
+        distribucion_adaptativa.setContentsMargins(
+            6,
+            4,
+            6,
+            4
+        )
+
+        distribucion_adaptativa.setSpacing(
+            0
+        )
+
+
+        distribucion_adaptativa.addStretch(
+            1
+        )
+
+
+        # ----------------------------------- #
+        #          Guía adaptativa            #
+        # ----------------------------------- #
+
+        self.marco_guia = QFrame()
+
+        self.marco_guia.setMaximumWidth(
+            1100
+        )
+
+        self.marco_guia.setStyleSheet(
+            """
+            QFrame {
+                border: 1px solid rgba(128, 128, 128, 65);
+                border-radius: 10px;
+                background-color: rgba(255, 255, 255, 4);
+            }
+
+            QLabel {
+                border: none;
+                background: transparent;
+            }
+            """
+        )
+
+
+        distribucion_guia = QVBoxLayout(
+            self.marco_guia
+        )
+
+        distribucion_guia.setContentsMargins(
+            18,
+            14,
+            18,
+            14
+        )
+
+        distribucion_guia.setSpacing(
+            9
+        )
+
+
+        # ----------------------------------- #
+        #         Título de la guía           #
+        # ----------------------------------- #
+
+        self.etiqueta_titulo_guia = QLabel(
+            "Guía rápida de compresión"
+        )
+
+        self.etiqueta_titulo_guia.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        self.etiqueta_titulo_guia.setStyleSheet(
+            """
+            QLabel {
+                font-size: 15px;
+                font-weight: 600;
+            }
+            """
+        )
+
+        distribucion_guia.addWidget(
+            self.etiqueta_titulo_guia
+        )
+
+
+        self.etiqueta_nivel_guia = QLabel()
+
+        self.etiqueta_nivel_guia.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        self.etiqueta_nivel_guia.setStyleSheet(
+            """
+            QLabel {
+                color: #8590a5;
+                font-size: 12px;
+            }
+            """
+        )
+
+        distribucion_guia.addWidget(
+            self.etiqueta_nivel_guia
+        )
+
+
+        # ----------------------------------- #
+        #             Tarjetas                #
+        # ----------------------------------- #
+
+        fila_tarjetas = QHBoxLayout()
+
+        fila_tarjetas.setSpacing(
+            12
+        )
+
+
+        self.tarjeta_sin_perdida = (
+            self.crear_tarjeta_guia(
+                "Sin pérdida",
+                (
+                    "Conserva la calidad visual. Ideal para "
+                    "documentos, formularios y PDFs donde la "
+                    "fidelidad es más importante que el tamaño."
+                )
+            )
+        )
+
+
+        self.tarjeta_equilibrada = (
+            self.crear_tarjeta_guia(
+                "Equilibrada",
+                (
+                    "Recomendada para uso general. Reduce el peso "
+                    "de las imágenes manteniendo una buena relación "
+                    "entre calidad y tamaño."
+                )
+            )
+        )
+
+
+        self.tarjeta_fuerte = (
+            self.crear_tarjeta_guia(
+                "Fuerte",
+                (
+                    "Busca el menor tamaño posible. Es útil para "
+                    "PDFs pesados con muchas imágenes cuando el "
+                    "tamaño final es la prioridad."
+                )
+            )
+        )
+
+
+        fila_tarjetas.addWidget(
+            self.tarjeta_sin_perdida,
+            1
+        )
+
+        fila_tarjetas.addWidget(
+            self.tarjeta_equilibrada,
+            1
+        )
+
+        fila_tarjetas.addWidget(
+            self.tarjeta_fuerte,
+            1
+        )
+
+
+        distribucion_guia.addLayout(
+            fila_tarjetas
+        )
+
+
+        distribucion_adaptativa.addWidget(
+            self.marco_guia,
+            0,
+            Qt.AlignmentFlag.AlignHCenter
+        )
+
+
+        distribucion_adaptativa.addStretch(
+            1
+        )
+
+
+        self.distribucion.addWidget(
+            self.contenedor_adaptativo,
             1
         )
 
@@ -879,7 +1096,256 @@ class PanelComprimirPDF(
         )
 
 
+        self.marco_guia.setVisible(
+            False
+        )
+
+
         self.actualizar_descripcion_nivel()
+
+
+    # ============================================================
+    # CREAR TARJETA DE GUÍA
+    # ============================================================
+    def crear_tarjeta_guia(
+        self,
+        titulo,
+        descripcion
+    ):
+
+        tarjeta = QFrame()
+
+        tarjeta.setMinimumHeight(
+            88
+        )
+
+
+        distribucion = QVBoxLayout(
+            tarjeta
+        )
+
+        distribucion.setContentsMargins(
+            14,
+            10,
+            14,
+            10
+        )
+
+        distribucion.setSpacing(
+            5
+        )
+
+
+        etiqueta_titulo = QLabel(
+            titulo
+        )
+
+        etiqueta_titulo.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        etiqueta_titulo.setStyleSheet(
+            """
+            QLabel {
+                font-size: 13px;
+                font-weight: 600;
+            }
+            """
+        )
+
+
+        etiqueta_descripcion = QLabel(
+            descripcion
+        )
+
+        etiqueta_descripcion.setWordWrap(
+            True
+        )
+
+        etiqueta_descripcion.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        etiqueta_descripcion.setStyleSheet(
+            """
+            QLabel {
+                color: #8590a5;
+                font-size: 11px;
+            }
+            """
+        )
+
+
+        distribucion.addWidget(
+            etiqueta_titulo
+        )
+
+        distribucion.addWidget(
+            etiqueta_descripcion,
+            1
+        )
+
+
+        return tarjeta
+
+
+    # ============================================================
+    # ESTILO DE TARJETA
+    # ============================================================
+    def establecer_tarjeta_seleccionada(
+        self,
+        tarjeta,
+        seleccionada
+    ):
+
+        if seleccionada:
+
+            tarjeta.setStyleSheet(
+                """
+                QFrame {
+                    border: 1px solid rgba(45, 127, 249, 210);
+                    border-radius: 8px;
+                    background-color: rgba(45, 127, 249, 24);
+                }
+
+                QLabel {
+                    border: none;
+                    background: transparent;
+                }
+                """
+            )
+
+        else:
+
+            tarjeta.setStyleSheet(
+                """
+                QFrame {
+                    border: 1px solid rgba(128, 128, 128, 65);
+                    border-radius: 8px;
+                    background-color: rgba(255, 255, 255, 4);
+                }
+
+                QLabel {
+                    border: none;
+                    background: transparent;
+                }
+                """
+            )
+
+
+    # ============================================================
+    # ACTUALIZAR GUÍA DE NIVEL
+    # ============================================================
+    def actualizar_guia_nivel(
+        self
+    ):
+
+        if not hasattr(
+            self,
+            "etiqueta_nivel_guia"
+        ):
+
+            return
+
+
+        nivel = self.obtener_nivel()
+
+
+        if nivel == "sin_perdida":
+
+            nombre = "Sin pérdida"
+
+        elif nivel == "fuerte":
+
+            nombre = "Fuerte"
+
+        else:
+
+            nombre = "Equilibrada"
+
+
+        self.etiqueta_nivel_guia.setText(
+            f"Nivel seleccionado: {nombre}"
+        )
+
+
+        self.establecer_tarjeta_seleccionada(
+            self.tarjeta_sin_perdida,
+            nivel == "sin_perdida"
+        )
+
+        self.establecer_tarjeta_seleccionada(
+            self.tarjeta_equilibrada,
+            nivel == "equilibrada"
+        )
+
+        self.establecer_tarjeta_seleccionada(
+            self.tarjeta_fuerte,
+            nivel == "fuerte"
+        )
+
+
+    # ============================================================
+    # ACTUALIZAR VISIBILIDAD DE LA GUÍA
+    # ============================================================
+    def actualizar_visibilidad_guia(
+        self
+    ):
+
+        if not hasattr(
+            self,
+            "marco_guia"
+        ):
+
+            return
+
+
+        mostrar = (
+            self.width()
+            >= self.ANCHO_MINIMO_GUIA
+            and self.height()
+            >= self.ALTO_MINIMO_GUIA
+        )
+
+
+        self.marco_guia.setVisible(
+            mostrar
+        )
+
+
+        if mostrar:
+
+            self.actualizar_guia_nivel()
+
+
+    # ============================================================
+    # CAMBIO DE TAMAÑO
+    # ============================================================
+    def resizeEvent(
+        self,
+        evento
+    ):
+
+        super().resizeEvent(
+            evento
+        )
+
+        self.actualizar_visibilidad_guia()
+
+
+    # ============================================================
+    # MOSTRAR PANEL
+    # ============================================================
+    def showEvent(
+        self,
+        evento
+    ):
+
+        super().showEvent(
+            evento
+        )
+
+        self.actualizar_visibilidad_guia()
 
 
     # ============================================================
@@ -953,6 +1419,9 @@ class PanelComprimirPDF(
         self.etiqueta_detalle_nivel.setText(
             texto
         )
+
+
+        self.actualizar_guia_nivel()
 
 
     # ============================================================

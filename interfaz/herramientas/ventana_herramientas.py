@@ -34,6 +34,7 @@ from interfaz.herramientas.panel_comprimir_pdf import (
     PanelComprimirPDF
 )
 
+
 # ================================================================
 # VENTANA DE HERRAMIENTAS
 # ================================================================
@@ -54,7 +55,6 @@ class VentanaHerramientas(QMainWindow):
             parent
         )
 
-        self._tamano_inicial_aplicado = False
         self._pantalla_objetivo = None
 
         self.setAttribute(
@@ -184,10 +184,6 @@ class VentanaHerramientas(QMainWindow):
         )
 
 
-        self.mostrar_herramienta(
-            "unir_pdf"
-        )
-
         # ----------------------------------- #
         #          Comprimir PDF              #
         # ----------------------------------- #
@@ -203,6 +199,15 @@ class VentanaHerramientas(QMainWindow):
         )
 
 
+        # ----------------------------------- #
+        #       Herramienta inicial           #
+        # ----------------------------------- #
+
+        self.mostrar_herramienta(
+            "unir_pdf"
+        )
+
+
     # ============================================================
     # CONECTAR EVENTOS
     # ============================================================
@@ -212,6 +217,59 @@ class VentanaHerramientas(QMainWindow):
 
         self.barra_superior.volver_solicitado.connect(
             self.solicitar_volver
+        )
+
+
+    # ============================================================
+    # APLICAR TAMAÑO DEL PANEL
+    # ============================================================
+    def aplicar_tamano_panel(
+        self,
+        panel
+    ):
+
+        ancho_inicial = getattr(
+            panel,
+            "ANCHO_INICIAL",
+            1150
+        )
+
+        alto_inicial = getattr(
+            panel,
+            "ALTO_INICIAL",
+            760
+        )
+
+        ancho_minimo = getattr(
+            panel,
+            "ANCHO_MINIMO",
+            1150
+        )
+
+        alto_minimo = getattr(
+            panel,
+            "ALTO_MINIMO",
+            760
+        )
+
+
+        # ----------------------------------- #
+        #         Cambiar mínimo              #
+        # ----------------------------------- #
+
+        self.setMinimumSize(
+            ancho_minimo,
+            alto_minimo
+        )
+
+
+        # ----------------------------------- #
+        #         Cambiar tamaño              #
+        # ----------------------------------- #
+
+        self.resize(
+            ancho_inicial,
+            alto_inicial
         )
 
 
@@ -230,6 +288,10 @@ class VentanaHerramientas(QMainWindow):
         if herramienta == "unir_pdf":
 
             self.pila_herramientas.setCurrentWidget(
+                self.panel_unir_pdf
+            )
+
+            self.aplicar_tamano_panel(
                 self.panel_unir_pdf
             )
 
@@ -254,6 +316,10 @@ class VentanaHerramientas(QMainWindow):
                 self.panel_dividir_pdf
             )
 
+            self.aplicar_tamano_panel(
+                self.panel_dividir_pdf
+            )
+
             self.setWindowTitle(
                 "Dividir PDF - Convertidor de Archivos"
             )
@@ -272,6 +338,10 @@ class VentanaHerramientas(QMainWindow):
         if herramienta == "extraer_paginas":
 
             self.pila_herramientas.setCurrentWidget(
+                self.panel_extraer_paginas
+            )
+
+            self.aplicar_tamano_panel(
                 self.panel_extraer_paginas
             )
 
@@ -296,6 +366,10 @@ class VentanaHerramientas(QMainWindow):
                 self.panel_reordenar_paginas
             )
 
+            self.aplicar_tamano_panel(
+                self.panel_reordenar_paginas
+            )
+
             self.setWindowTitle(
                 "Reordenar páginas - Convertidor de Archivos"
             )
@@ -317,6 +391,10 @@ class VentanaHerramientas(QMainWindow):
                 self.panel_comprimir_pdf
             )
 
+            self.aplicar_tamano_panel(
+                self.panel_comprimir_pdf
+            )
+
             self.setWindowTitle(
                 "Comprimir PDF - Convertidor de Archivos"
             )
@@ -326,6 +404,7 @@ class VentanaHerramientas(QMainWindow):
             )
 
             return
+
 
         raise ValueError(
             f"Herramienta desconocida: {herramienta}"
@@ -451,45 +530,7 @@ class VentanaHerramientas(QMainWindow):
 
 
         # ----------------------------------- #
-        #         Primera apertura            #
-        # ----------------------------------- #
-
-        if not self._tamano_inicial_aplicado:
-
-            ancho = min(
-                1150,
-                ancho_disponible
-            )
-
-            alto = min(
-                760,
-                alto_disponible
-            )
-
-
-            ancho = max(
-                self.minimumWidth(),
-                ancho
-            )
-
-            alto = max(
-                self.minimumHeight(),
-                alto
-            )
-
-
-            self.resize(
-                ancho,
-                alto
-            )
-
-            self._tamano_inicial_aplicado = True
-
-            return
-
-
-        # ----------------------------------- #
-        #     Conservar tamaño del usuario    #
+        #     Respetar tamaño del panel       #
         # ----------------------------------- #
 
         ancho = min(
