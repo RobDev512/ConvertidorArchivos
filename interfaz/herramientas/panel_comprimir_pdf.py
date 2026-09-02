@@ -259,7 +259,7 @@ class PanelComprimirPDF(
     # DIMENSIONES DE LA GUÍA ADAPTATIVA
     # ============================================================
 
-    ANCHO_MINIMO_GUIA = 1000
+    ANCHO_MINIMO_GUIA = 850
     ALTO_MINIMO_GUIA = 700
 
 
@@ -1116,7 +1116,7 @@ class PanelComprimirPDF(
         tarjeta = QFrame()
 
         tarjeta.setMinimumHeight(
-            88
+            108
         )
 
 
