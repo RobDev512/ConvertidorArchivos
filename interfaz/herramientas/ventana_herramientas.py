@@ -34,17 +34,39 @@ from interfaz.herramientas.panel_comprimir_pdf import (
     PanelComprimirPDF
 )
 
+from interfaz.herramientas.panel_redimensionar_imagenes import (
+    PanelRedimensionarImagenes
+)
+
+from interfaz.herramientas.panel_comprimir_imagenes import (
+    PanelComprimirImagenes
+)
+
+from interfaz.herramientas.panel_imagenes_a_pdf import (
+    PanelImagenesAPDF
+)
+
+from interfaz.herramientas.panel_mejorar_calidad import (
+    PanelMejorarCalidad
+)
+
+from interfaz.herramientas.panel_quitar_fondo import (
+    PanelQuitarFondo
+)
+
 
 # ================================================================
 # VENTANA DE HERRAMIENTAS
 # ================================================================
-class VentanaHerramientas(QMainWindow):
+class VentanaHerramientas(
+    QMainWindow
+):
 
     volver_solicitado = Signal()
 
 
     # ============================================================
-    # INICIALIZACIÓN
+    # INICIALIZACION
     # ============================================================
     def __init__(
         self,
@@ -63,7 +85,9 @@ class VentanaHerramientas(QMainWindow):
         )
 
         self.configurar_ventana()
+
         self.crear_interfaz()
+
         self.conectar_eventos()
 
 
@@ -96,10 +120,6 @@ class VentanaHerramientas(QMainWindow):
         self
     ):
 
-        # ----------------------------------- #
-        #         Barra superior              #
-        # ----------------------------------- #
-
         self.barra_superior = (
             BarraSuperiorHerramienta(
                 self
@@ -109,11 +129,6 @@ class VentanaHerramientas(QMainWindow):
         self.setMenuWidget(
             self.barra_superior
         )
-
-
-        # ----------------------------------- #
-        #         Pila de herramientas        #
-        # ----------------------------------- #
 
         self.pila_herramientas = (
             QStackedWidget(
@@ -126,9 +141,9 @@ class VentanaHerramientas(QMainWindow):
         )
 
 
-        # ----------------------------------- #
-        #             Unir PDF                #
-        # ----------------------------------- #
+        # ========================================================
+        # PDF
+        # ========================================================
 
         self.panel_unir_pdf = PanelPDF(
             self
@@ -137,11 +152,6 @@ class VentanaHerramientas(QMainWindow):
         self.pila_herramientas.addWidget(
             self.panel_unir_pdf
         )
-
-
-        # ----------------------------------- #
-        #           Dividir PDF               #
-        # ----------------------------------- #
 
         self.panel_dividir_pdf = (
             PanelDividirPDF(
@@ -153,11 +163,6 @@ class VentanaHerramientas(QMainWindow):
             self.panel_dividir_pdf
         )
 
-
-        # ----------------------------------- #
-        #         Extraer páginas             #
-        # ----------------------------------- #
-
         self.panel_extraer_paginas = (
             PanelExtraerPaginas(
                 self
@@ -168,11 +173,6 @@ class VentanaHerramientas(QMainWindow):
             self.panel_extraer_paginas
         )
 
-
-        # ----------------------------------- #
-        #        Reordenar páginas            #
-        # ----------------------------------- #
-
         self.panel_reordenar_paginas = (
             PanelReordenarPaginas(
                 self
@@ -182,11 +182,6 @@ class VentanaHerramientas(QMainWindow):
         self.pila_herramientas.addWidget(
             self.panel_reordenar_paginas
         )
-
-
-        # ----------------------------------- #
-        #          Comprimir PDF              #
-        # ----------------------------------- #
 
         self.panel_comprimir_pdf = (
             PanelComprimirPDF(
@@ -199,9 +194,59 @@ class VentanaHerramientas(QMainWindow):
         )
 
 
-        # ----------------------------------- #
-        #       Herramienta inicial           #
-        # ----------------------------------- #
+        # ========================================================
+        # IMAGENES
+        # ========================================================
+
+        self.panel_redimensionar_imagenes = (
+            PanelRedimensionarImagenes(
+                self
+            )
+        )
+
+        self.pila_herramientas.addWidget(
+            self.panel_redimensionar_imagenes
+        )
+
+        self.panel_comprimir_imagenes = (
+            PanelComprimirImagenes(
+                self
+            )
+        )
+
+        self.pila_herramientas.addWidget(
+            self.panel_comprimir_imagenes
+        )
+
+        self.panel_imagenes_a_pdf = (
+            PanelImagenesAPDF(
+                self
+            )
+        )
+
+        self.pila_herramientas.addWidget(
+            self.panel_imagenes_a_pdf
+        )
+
+        self.panel_mejorar_calidad = (
+            PanelMejorarCalidad(
+                self
+            )
+        )
+
+        self.pila_herramientas.addWidget(
+            self.panel_mejorar_calidad
+        )
+
+        self.panel_quitar_fondo = (
+            PanelQuitarFondo(
+                self
+            )
+        )
+
+        self.pila_herramientas.addWidget(
+            self.panel_quitar_fondo
+        )
 
         self.mostrar_herramienta(
             "unir_pdf"
@@ -221,7 +266,7 @@ class VentanaHerramientas(QMainWindow):
 
 
     # ============================================================
-    # APLICAR TAMAÑO DEL PANEL
+    # APLICAR TAMANO DEL PANEL
     # ============================================================
     def aplicar_tamano_panel(
         self,
@@ -252,20 +297,10 @@ class VentanaHerramientas(QMainWindow):
             760
         )
 
-
-        # ----------------------------------- #
-        #         Cambiar mínimo              #
-        # ----------------------------------- #
-
         self.setMinimumSize(
             ancho_minimo,
             alto_minimo
         )
-
-
-        # ----------------------------------- #
-        #         Cambiar tamaño              #
-        # ----------------------------------- #
 
         self.resize(
             ancho_inicial,
@@ -281,133 +316,88 @@ class VentanaHerramientas(QMainWindow):
         herramienta
     ):
 
-        # ----------------------------------- #
-        #             Unir PDF                #
-        # ----------------------------------- #
-
-        if herramienta == "unir_pdf":
-
-            self.pila_herramientas.setCurrentWidget(
-                self.panel_unir_pdf
-            )
-
-            self.aplicar_tamano_panel(
-                self.panel_unir_pdf
-            )
-
-            self.setWindowTitle(
-                "Unir PDFs - Convertidor de Archivos"
-            )
-
-            self.barra_superior.establecer_seccion(
+        configuraciones = {
+            "unir_pdf": (
+                self.panel_unir_pdf,
+                "Unir PDFs - Convertidor de Archivos",
                 "PDF  ·  Unir PDFs"
-            )
-
-            return
-
-
-        # ----------------------------------- #
-        #           Dividir PDF               #
-        # ----------------------------------- #
-
-        if herramienta == "dividir_pdf":
-
-            self.pila_herramientas.setCurrentWidget(
-                self.panel_dividir_pdf
-            )
-
-            self.aplicar_tamano_panel(
-                self.panel_dividir_pdf
-            )
-
-            self.setWindowTitle(
-                "Dividir PDF - Convertidor de Archivos"
-            )
-
-            self.barra_superior.establecer_seccion(
+            ),
+            "dividir_pdf": (
+                self.panel_dividir_pdf,
+                "Dividir PDF - Convertidor de Archivos",
                 "PDF  ·  Dividir PDF"
-            )
-
-            return
-
-
-        # ----------------------------------- #
-        #         Extraer páginas             #
-        # ----------------------------------- #
-
-        if herramienta == "extraer_paginas":
-
-            self.pila_herramientas.setCurrentWidget(
-                self.panel_extraer_paginas
-            )
-
-            self.aplicar_tamano_panel(
-                self.panel_extraer_paginas
-            )
-
-            self.setWindowTitle(
-                "Extraer páginas - Convertidor de Archivos"
-            )
-
-            self.barra_superior.establecer_seccion(
+            ),
+            "extraer_paginas": (
+                self.panel_extraer_paginas,
+                "Extraer páginas - Convertidor de Archivos",
                 "PDF  ·  Extraer páginas"
-            )
-
-            return
-
-
-        # ----------------------------------- #
-        #        Reordenar páginas            #
-        # ----------------------------------- #
-
-        if herramienta == "reordenar_paginas":
-
-            self.pila_herramientas.setCurrentWidget(
-                self.panel_reordenar_paginas
-            )
-
-            self.aplicar_tamano_panel(
-                self.panel_reordenar_paginas
-            )
-
-            self.setWindowTitle(
-                "Reordenar páginas - Convertidor de Archivos"
-            )
-
-            self.barra_superior.establecer_seccion(
+            ),
+            "reordenar_paginas": (
+                self.panel_reordenar_paginas,
+                "Reordenar páginas - Convertidor de Archivos",
                 "PDF  ·  Reordenar páginas"
-            )
-
-            return
-
-
-        # ----------------------------------- #
-        #          Comprimir PDF              #
-        # ----------------------------------- #
-
-        if herramienta == "comprimir_pdf":
-
-            self.pila_herramientas.setCurrentWidget(
-                self.panel_comprimir_pdf
-            )
-
-            self.aplicar_tamano_panel(
-                self.panel_comprimir_pdf
-            )
-
-            self.setWindowTitle(
-                "Comprimir PDF - Convertidor de Archivos"
-            )
-
-            self.barra_superior.establecer_seccion(
+            ),
+            "comprimir_pdf": (
+                self.panel_comprimir_pdf,
+                "Comprimir PDF - Convertidor de Archivos",
                 "PDF  ·  Comprimir PDF"
+            ),
+            "redimensionar_imagenes": (
+                self.panel_redimensionar_imagenes,
+                "Redimensionar imágenes - Convertidor de Archivos",
+                "Imágenes  ·  Redimensionar"
+            ),
+            "comprimir_imagenes": (
+                self.panel_comprimir_imagenes,
+                "Comprimir imágenes - Convertidor de Archivos",
+                "Imágenes  ·  Comprimir"
+            ),
+            "imagenes_a_pdf": (
+                self.panel_imagenes_a_pdf,
+                "Imágenes a PDF - Convertidor de Archivos",
+                "Imágenes  ·  Imágenes → PDF"
+            ),
+            "mejorar_calidad_imagenes": (
+                self.panel_mejorar_calidad,
+                "Mejorar calidad - Convertidor de Archivos",
+                "Imágenes  ·  Mejorar calidad"
+            ),
+            "quitar_fondo_imagenes": (
+                self.panel_quitar_fondo,
+                "Quitar fondo - Convertidor de Archivos",
+                "Imágenes  ·  Quitar fondo"
+            )
+        }
+
+        configuracion = configuraciones.get(
+            herramienta
+        )
+
+        if configuracion is None:
+
+            raise ValueError(
+                f"Herramienta desconocida: "
+                f"{herramienta}"
             )
 
-            return
+        panel, titulo, seccion = (
+            configuracion
+        )
 
+        self.pila_herramientas.setCurrentWidget(
+            panel
+        )
 
-        raise ValueError(
-            f"Herramienta desconocida: {herramienta}"
+        self.aplicar_tamano_panel(
+            panel
+        )
+
+        self.setWindowTitle(
+            titulo
+        )
+
+        self.barra_superior.establecer_seccion(
+            seccion
         )
 
 
@@ -433,11 +423,6 @@ class VentanaHerramientas(QMainWindow):
 
         pantalla = None
 
-
-        # ----------------------------------- #
-        #       Ventana de referencia         #
-        # ----------------------------------- #
-
         if referencia is not None:
 
             try:
@@ -448,26 +433,17 @@ class VentanaHerramientas(QMainWindow):
 
                 pantalla = None
 
-
         if pantalla is not None:
 
-            self._pantalla_objetivo = pantalla
+            self._pantalla_objetivo = (
+                pantalla
+            )
 
             return pantalla
-
-
-        # ----------------------------------- #
-        #     Última pantalla conocida        #
-        # ----------------------------------- #
 
         if self._pantalla_objetivo is not None:
 
             return self._pantalla_objetivo
-
-
-        # ----------------------------------- #
-        #       Pantalla de esta ventana      #
-        # ----------------------------------- #
 
         try:
 
@@ -477,17 +453,11 @@ class VentanaHerramientas(QMainWindow):
 
             pantalla = None
 
-
-        # ----------------------------------- #
-        #            Respaldo                 #
-        # ----------------------------------- #
-
         if pantalla is None:
 
             pantalla = (
                 QApplication.primaryScreen()
             )
-
 
         self._pantalla_objetivo = pantalla
 
@@ -495,7 +465,7 @@ class VentanaHerramientas(QMainWindow):
 
 
     # ============================================================
-    # AJUSTAR TAMAÑO A PANTALLA
+    # AJUSTAR TAMANO A PANTALLA
     # ============================================================
     def ajustar_tamano_a_pantalla(
         self,
@@ -506,32 +476,23 @@ class VentanaHerramientas(QMainWindow):
 
             return
 
-
-        # ----------------------------------- #
-        #       Área útil de Windows          #
-        # ----------------------------------- #
-
         area = pantalla.availableGeometry()
 
         margen = 16
 
-
         ancho_disponible = max(
             1,
             area.width()
-            - margen * 2
+            - margen
+            * 2
         )
 
         alto_disponible = max(
             1,
             area.height()
-            - margen * 2
+            - margen
+            * 2
         )
-
-
-        # ----------------------------------- #
-        #     Respetar tamaño del panel       #
-        # ----------------------------------- #
 
         ancho = min(
             self.width(),
@@ -543,7 +504,6 @@ class VentanaHerramientas(QMainWindow):
             alto_disponible
         )
 
-
         ancho = max(
             self.minimumWidth(),
             ancho
@@ -553,7 +513,6 @@ class VentanaHerramientas(QMainWindow):
             self.minimumHeight(),
             alto
         )
-
 
         if (
             ancho != self.width()
@@ -583,13 +542,11 @@ class VentanaHerramientas(QMainWindow):
 
             return
 
-
         if ajustar_tamano:
 
             self.ajustar_tamano_a_pantalla(
                 pantalla
             )
-
 
         area = pantalla.availableGeometry()
 
@@ -598,7 +555,6 @@ class VentanaHerramientas(QMainWindow):
         marco.moveCenter(
             area.center()
         )
-
 
         x = marco.left()
         y = marco.top()
@@ -618,7 +574,6 @@ class VentanaHerramientas(QMainWindow):
             + 1
         )
 
-
         if x_maximo < x_minimo:
 
             x = x_minimo
@@ -633,7 +588,6 @@ class VentanaHerramientas(QMainWindow):
                 )
             )
 
-
         if y_maximo < y_minimo:
 
             y = y_minimo
@@ -647,7 +601,6 @@ class VentanaHerramientas(QMainWindow):
                     y_maximo
                 )
             )
-
 
         self.move(
             x,
@@ -666,12 +619,6 @@ class VentanaHerramientas(QMainWindow):
         super().showEvent(
             evento
         )
-
-
-        # ----------------------------------- #
-        # El marco real de Windows se conoce  #
-        # después de mostrar la ventana.      #
-        # ----------------------------------- #
 
         QTimer.singleShot(
             0,

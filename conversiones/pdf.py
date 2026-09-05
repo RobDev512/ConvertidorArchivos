@@ -8,8 +8,7 @@ from funciones.archivos import obtener_nombre_sin_extension
 from funciones.capacidades import (
     detectar_pdfium,
     detectar_microsoft_word,
-    detectar_pandoc,
-    detectar_aspose_pdf
+    detectar_pandoc
 )
 
 from conversiones.microsoft_office import convertir_con_word
@@ -20,8 +19,11 @@ from conversiones.pandoc import (
     convertir_con_pandoc
 )
 
-from conversiones.aspose_pdf import (
-    convertir_pdf_a_docx_aspose
+from conversiones.pdf_docx import (
+    ConversionPDFDOCXCancelada,
+    convertir_pdf_a_docx as convertir_pdf_a_docx_motor,
+    dependencias_pdf_docx_faltantes,
+    motor_pdf_docx_disponible
 )
 
 
@@ -74,11 +76,47 @@ def informar_progreso(
 ):
 
     if callback_progreso:
-
         callback_progreso(
             progreso,
             estado
         )
+
+
+# ================================================================
+# COMPROBAR CANCELACIÓN
+# ================================================================
+def comprobar_cancelacion(
+    callback_cancelacion
+):
+
+    if (
+        callback_cancelacion
+        and callback_cancelacion()
+    ):
+        raise ConversionPDFDOCXCancelada(
+            "Conversión cancelada por el usuario."
+        )
+
+
+# ================================================================
+# ELIMINAR RESULTADO PARCIAL
+# ================================================================
+def eliminar_resultado_parcial(
+    ruta_destino
+):
+
+    if not os.path.exists(
+        ruta_destino
+    ):
+        return
+
+    try:
+        os.remove(
+            ruta_destino
+        )
+
+    except OSError:
+        pass
 
 
 # ================================================================
@@ -89,16 +127,12 @@ def abrir_pdf(
 ):
 
     if not detectar_pdfium():
-
         raise RuntimeError(
             "No se encontró el motor PDFium."
         )
 
-
     try:
-
         import pypdfium2 as pdfium
-
 
         return pdfium.PdfDocument(
             os.path.abspath(
@@ -106,9 +140,7 @@ def abrir_pdf(
             )
         )
 
-
     except Exception as error:
-
         raise RuntimeError(
             "No fue posible abrir el archivo PDF.\n\n"
             "Puede estar dañado o protegido con contraseña.\n\n"
@@ -127,25 +159,18 @@ def obtener_cantidad_paginas_pdf(
         ruta_archivo
     )
 
-
     try:
-
         cantidad_paginas = len(
             documento
         )
 
-
     finally:
-
         documento.close()
 
-
     if cantidad_paginas <= 0:
-
         raise RuntimeError(
             "El archivo PDF no contiene páginas."
         )
-
 
     return cantidad_paginas
 
@@ -160,11 +185,8 @@ def resultado_pdf_requiere_zip(
 
     formato_destino = formato_destino.upper()
 
-
     if formato_destino not in FORMATOS_IMAGEN_PDF:
-
         return False
-
 
     return (
         obtener_cantidad_paginas_pdf(
@@ -186,27 +208,21 @@ def preparar_imagen_pagina(
         / 72
     )
 
-
     bitmap = pagina.render(
         scale=escala,
         rev_byteorder=True,
         prefer_bgrx=True
     )
 
-
     try:
-
         imagen = bitmap.to_pil()
 
         imagen = imagen.convert(
             "RGB"
         )
 
-
     finally:
-
         bitmap.close()
-
 
     return imagen
 
@@ -222,52 +238,30 @@ def guardar_imagen_pagina(
 
     formato_destino = formato_destino.upper()
 
-
-    # ----------------------------------- #
-    #               JPG                   #
-    # ----------------------------------- #
-
     if formato_destino == "JPG":
-
         imagen.save(
             ruta_destino,
             format="JPEG",
             quality=92,
             optimize=True
         )
-
         return
 
-
-    # ----------------------------------- #
-    #               PNG                   #
-    # ----------------------------------- #
-
     if formato_destino == "PNG":
-
         imagen.save(
             ruta_destino,
             format="PNG",
             optimize=True
         )
-
         return
 
-
-    # ----------------------------------- #
-    #               TIFF                  #
-    # ----------------------------------- #
-
     if formato_destino == "TIFF":
-
         imagen.save(
             ruta_destino,
             format="TIFF",
             compression="tiff_lzw"
         )
-
         return
-
 
     raise ValueError(
         f"No existe una configuración de imagen "
@@ -288,19 +282,15 @@ def obtener_extension_imagen_pdf(
         "TIFF": ".tiff"
     }
 
-
     extension = extensiones.get(
         formato_destino.upper()
     )
 
-
     if not extension:
-
         raise ValueError(
             f"No se conoce la extensión de "
             f"{formato_destino}."
         )
-
 
     return extension
 
@@ -312,35 +302,38 @@ def convertir_pdf_a_imagen(
     ruta_origen,
     ruta_destino,
     formato_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
     formato_destino = formato_destino.upper()
+
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     documento = abrir_pdf(
         ruta_origen
     )
 
-
     try:
-
         cantidad_paginas = len(
             documento
         )
 
-
         if cantidad_paginas <= 0:
-
             raise RuntimeError(
                 "El PDF no contiene páginas."
             )
-
 
         # ========================================================
         # UNA SOLA PÁGINA
         # ========================================================
 
         if cantidad_paginas == 1:
+            comprobar_cancelacion(
+                callback_cancelacion
+            )
 
             informar_progreso(
                 callback_progreso,
@@ -348,23 +341,19 @@ def convertir_pdf_a_imagen(
                 "Renderizando página 1 de 1..."
             )
 
-
-            pagina = documento[
-                0
-            ]
-
+            pagina = documento[0]
 
             try:
-
                 imagen = preparar_imagen_pagina(
                     pagina
                 )
 
-
             finally:
-
                 pagina.close()
 
+            comprobar_cancelacion(
+                callback_cancelacion
+            )
 
             informar_progreso(
                 callback_progreso,
@@ -372,13 +361,15 @@ def convertir_pdf_a_imagen(
                 "Guardando imagen..."
             )
 
-
             guardar_imagen_pagina(
                 imagen,
                 ruta_destino,
                 formato_destino
             )
 
+            comprobar_cancelacion(
+                callback_cancelacion
+            )
 
             informar_progreso(
                 callback_progreso,
@@ -386,16 +377,13 @@ def convertir_pdf_a_imagen(
                 "Imagen generada correctamente."
             )
 
-
             return ruta_destino
-
 
         # ========================================================
         # VARIAS PÁGINAS
         # ========================================================
 
         with tempfile.TemporaryDirectory() as carpeta_temporal:
-
             nombre_base = obtener_nombre_sin_extension(
                 ruta_origen
             )
@@ -415,7 +403,6 @@ def convertir_pdf_a_imagen(
 
             archivos_generados = []
 
-
             # ----------------------------------- #
             #       Renderizar cada página        #
             # ----------------------------------- #
@@ -423,19 +410,17 @@ def convertir_pdf_a_imagen(
             for indice in range(
                 cantidad_paginas
             ):
-
-                numero_pagina = (
-                    indice
-                    + 1
+                comprobar_cancelacion(
+                    callback_cancelacion
                 )
 
+                numero_pagina = indice + 1
 
                 progreso = round(
                     numero_pagina
                     / cantidad_paginas
                     * 90
                 )
-
 
                 informar_progreso(
                     callback_progreso,
@@ -447,23 +432,17 @@ def convertir_pdf_a_imagen(
                     )
                 )
 
-
                 pagina = documento[
                     indice
                 ]
 
-
                 try:
-
                     imagen = preparar_imagen_pagina(
                         pagina
                     )
 
-
                 finally:
-
                     pagina.close()
-
 
                 nombre_imagen = (
                     f"{nombre_base}_pagina_"
@@ -471,12 +450,10 @@ def convertir_pdf_a_imagen(
                     f"{extension}"
                 )
 
-
                 ruta_imagen = os.path.join(
                     carpeta_temporal,
                     nombre_imagen
                 )
-
 
                 guardar_imagen_pagina(
                     imagen,
@@ -484,15 +461,13 @@ def convertir_pdf_a_imagen(
                     formato_destino
                 )
 
-
                 archivos_generados.append(
                     ruta_imagen
                 )
 
-
-            # ----------------------------------- #
-            #          Crear archivo ZIP          #
-            # ----------------------------------- #
+            comprobar_cancelacion(
+                callback_cancelacion
+            )
 
             informar_progreso(
                 callback_progreso,
@@ -500,16 +475,16 @@ def convertir_pdf_a_imagen(
                 "Empaquetando imágenes..."
             )
 
-
             with zipfile.ZipFile(
                 ruta_destino,
                 "w",
                 compression=zipfile.ZIP_DEFLATED,
                 compresslevel=9
             ) as archivo_zip:
-
-
                 for ruta_imagen in archivos_generados:
+                    comprobar_cancelacion(
+                        callback_cancelacion
+                    )
 
                     archivo_zip.write(
                         ruta_imagen,
@@ -518,6 +493,9 @@ def convertir_pdf_a_imagen(
                         )
                     )
 
+        comprobar_cancelacion(
+            callback_cancelacion
+        )
 
         informar_progreso(
             callback_progreso,
@@ -528,12 +506,9 @@ def convertir_pdf_a_imagen(
             )
         )
 
-
         return ruta_destino
 
-
     finally:
-
         documento.close()
 
 
@@ -543,8 +518,13 @@ def convertir_pdf_a_imagen(
 def extraer_texto_pdf(
     ruta_origen,
     callback_progreso=None,
-    progreso_maximo=100
+    progreso_maximo=100,
+    callback_cancelacion=None
 ):
+
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     documento = abrir_pdf(
         ruta_origen
@@ -552,41 +532,30 @@ def extraer_texto_pdf(
 
     paginas_texto = []
 
-
     try:
-
         cantidad_paginas = len(
             documento
         )
 
-
         if cantidad_paginas <= 0:
-
             raise RuntimeError(
                 "El PDF no contiene páginas."
             )
 
-
-        # ----------------------------------- #
-        #         Extraer cada página         #
-        # ----------------------------------- #
-
         for indice in range(
             cantidad_paginas
         ):
-
-            numero_pagina = (
-                indice
-                + 1
+            comprobar_cancelacion(
+                callback_cancelacion
             )
 
+            numero_pagina = indice + 1
 
             progreso = round(
                 numero_pagina
                 / cantidad_paginas
                 * progreso_maximo
             )
-
 
             informar_progreso(
                 callback_progreso,
@@ -598,60 +567,41 @@ def extraer_texto_pdf(
                 )
             )
 
-
             pagina = documento[
                 indice
             ]
 
-
             try:
-
                 pagina_texto = pagina.get_textpage()
 
-
                 try:
-
                     texto = (
                         pagina_texto
                         .get_text_bounded()
                     )
 
-
                 finally:
-
                     pagina_texto.close()
 
-
             finally:
-
                 pagina.close()
-
 
             paginas_texto.append(
                 texto.strip()
             )
 
-
     finally:
-
         documento.close()
-
-
-    # ----------------------------------- #
-    #      Comprobar texto encontrado     #
-    # ----------------------------------- #
 
     if not any(
         pagina.strip()
         for pagina in paginas_texto
     ):
-
         raise RuntimeError(
             "El PDF no contiene texto extraíble.\n\n"
             "Es posible que sea un documento escaneado. "
             "La lectura mediante OCR se añadirá posteriormente."
         )
-
 
     return paginas_texto
 
@@ -662,29 +612,31 @@ def extraer_texto_pdf(
 def convertir_pdf_a_txt(
     ruta_origen,
     ruta_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
     paginas = extraer_texto_pdf(
         ruta_origen,
         callback_progreso,
-        95
+        95,
+        callback_cancelacion
     )
 
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     contenido = []
-
 
     for indice, texto in enumerate(
         paginas,
         start=1
     ):
-
         contenido.append(
             f"========== PÁGINA {indice} ==========\n\n"
             f"{texto}"
         )
-
 
     informar_progreso(
         callback_progreso,
@@ -692,26 +644,26 @@ def convertir_pdf_a_txt(
         "Guardando documento de texto..."
     )
 
-
     with open(
         ruta_destino,
         "w",
         encoding="utf-8"
     ) as archivo:
-
         archivo.write(
             "\n\n".join(
                 contenido
             )
         )
 
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     informar_progreso(
         callback_progreso,
         100,
         "Texto extraído correctamente."
     )
-
 
     return ruta_destino
 
@@ -730,16 +682,13 @@ def crear_html_paginas(
 
     secciones = []
 
-
     for indice, texto in enumerate(
         paginas,
         start=1
     ):
-
         texto_seguro = html.escape(
             texto
         )
-
 
         secciones.append(
             f"""
@@ -750,11 +699,9 @@ def crear_html_paginas(
 """.strip()
         )
 
-
     contenido = "\n\n".join(
         secciones
     )
-
 
     return f"""<!DOCTYPE html>
 <html lang="es">
@@ -797,21 +744,25 @@ def convertir_pdf_a_html(
     ruta_origen,
     ruta_destino,
     callback_progreso=None,
-    progreso_maximo=95
+    progreso_maximo=95,
+    callback_cancelacion=None
 ):
 
     paginas = extraer_texto_pdf(
         ruta_origen,
         callback_progreso,
-        progreso_maximo
+        progreso_maximo,
+        callback_cancelacion
     )
 
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     contenido_html = crear_html_paginas(
         ruta_origen,
         paginas
     )
-
 
     informar_progreso(
         callback_progreso,
@@ -822,17 +773,18 @@ def convertir_pdf_a_html(
         "Guardando documento HTML..."
     )
 
-
     with open(
         ruta_destino,
         "w",
         encoding="utf-8"
     ) as archivo:
-
         archivo.write(
             contenido_html
         )
 
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     return ruta_destino
 
@@ -845,27 +797,19 @@ def comprobar_respaldo_pandoc(
 ):
 
     if not detectar_pdfium():
-
         return False
-
 
     if not detectar_pandoc():
-
         return False
-
 
     escritor = ESCRITORES_PANDOC.get(
         formato_destino.upper()
     )
 
-
     if not escritor:
-
         return False
 
-
     formatos = obtener_formatos_pandoc()
-
 
     return escritor in formatos[
         "salida"
@@ -879,24 +823,31 @@ def convertir_pdf_con_pandoc(
     ruta_origen,
     ruta_destino,
     formato_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
-    with tempfile.TemporaryDirectory() as carpeta_temporal:
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
+    with tempfile.TemporaryDirectory() as carpeta_temporal:
         ruta_html = os.path.join(
             carpeta_temporal,
             "documento_intermedio.html"
         )
 
-
         convertir_pdf_a_html(
             ruta_origen,
             ruta_html,
             callback_progreso,
-            70
+            70,
+            callback_cancelacion
         )
 
+        comprobar_cancelacion(
+            callback_cancelacion
+        )
 
         informar_progreso(
             callback_progreso,
@@ -907,20 +858,21 @@ def convertir_pdf_con_pandoc(
             )
         )
 
-
         convertir_con_pandoc(
             ruta_html,
             ruta_destino,
             formato_destino
         )
 
+        comprobar_cancelacion(
+            callback_cancelacion
+        )
 
         informar_progreso(
             callback_progreso,
             100,
             "Documento convertido correctamente."
         )
-
 
     return ruta_destino
 
@@ -931,82 +883,78 @@ def convertir_pdf_con_pandoc(
 def convertir_pdf_a_docx(
     ruta_origen,
     ruta_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
     errores = []
 
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     # ============================================================
-    # ASPOSE.PDF
+    # MOTOR PDF → DOCX PROPIO
     # ============================================================
 
-    if detectar_aspose_pdf():
-
-        informar_progreso(
-            callback_progreso,
-            10,
-            "Analizando estructura del PDF..."
-        )
-
-
+    if motor_pdf_docx_disponible():
         try:
-
-            resultado = convertir_pdf_a_docx_aspose(
+            return convertir_pdf_a_docx_motor(
                 ruta_origen,
                 ruta_destino,
-                modo="FLOW"
+                progreso=callback_progreso,
+                comprobar_cancelacion_callback=(
+                    callback_cancelacion
+                )
             )
 
-
-            informar_progreso(
-                callback_progreso,
-                100,
-                "Documento DOCX convertido correctamente."
+        except ConversionPDFDOCXCancelada:
+            eliminar_resultado_parcial(
+                ruta_destino
             )
-
-
-            return resultado
-
+            raise
 
         except Exception as error:
-
             errores.append(
-                f"Aspose.PDF: {error}"
+                f"Motor PDF → DOCX propio: {error}"
             )
 
-
-            # Si Aspose creó un archivo defectuoso,
-            # eliminarlo antes del siguiente motor
-            if os.path.exists(
+            eliminar_resultado_parcial(
                 ruta_destino
-            ):
+            )
 
-                try:
+    else:
+        faltantes = (
+            dependencias_pdf_docx_faltantes()
+        )
 
-                    os.remove(
-                        ruta_destino
-                    )
+        if faltantes:
+            errores.append(
+                "Motor PDF → DOCX propio no disponible: "
+                + ", ".join(
+                    faltantes
+                )
+            )
 
-                except OSError:
-
-                    pass
-
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     # ============================================================
-    # MICROSOFT WORD
+    # MICROSOFT WORD COMO RESPALDO
     # ============================================================
 
     if detectar_microsoft_word():
-
         informar_progreso(
             callback_progreso,
             35,
             "Intentando conversión con Microsoft Word..."
         )
 
-
         try:
+            comprobar_cancelacion(
+                callback_cancelacion
+            )
 
             resultado = convertir_con_word(
                 ruta_origen,
@@ -1014,6 +962,9 @@ def convertir_pdf_a_docx(
                 "DOCX"
             )
 
+            comprobar_cancelacion(
+                callback_cancelacion
+            )
 
             informar_progreso(
                 callback_progreso,
@@ -1021,31 +972,26 @@ def convertir_pdf_a_docx(
                 "Documento DOCX convertido correctamente."
             )
 
-
             return resultado
 
+        except ConversionPDFDOCXCancelada:
+            eliminar_resultado_parcial(
+                ruta_destino
+            )
+            raise
 
         except Exception as error:
-
             errores.append(
                 f"Microsoft Word: {error}"
             )
 
-
-            if os.path.exists(
+            eliminar_resultado_parcial(
                 ruta_destino
-            ):
+            )
 
-                try:
-
-                    os.remove(
-                        ruta_destino
-                    )
-
-                except OSError:
-
-                    pass
-
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     # ============================================================
     # PANDOC COMO ÚLTIMO RESPALDO
@@ -1054,30 +1000,31 @@ def convertir_pdf_a_docx(
     if comprobar_respaldo_pandoc(
         "DOCX"
     ):
-
         try:
-
             return convertir_pdf_con_pandoc(
                 ruta_origen,
                 ruta_destino,
                 "DOCX",
-                callback_progreso
+                callback_progreso,
+                callback_cancelacion
             )
 
+        except ConversionPDFDOCXCancelada:
+            eliminar_resultado_parcial(
+                ruta_destino
+            )
+            raise
 
         except Exception as error:
-
             errores.append(
                 f"Pandoc: {error}"
             )
 
-
-    # ============================================================
-    # NINGÚN MOTOR FUNCIONÓ
-    # ============================================================
+            eliminar_resultado_parcial(
+                ruta_destino
+            )
 
     if errores:
-
         raise RuntimeError(
             "Ningún motor pudo convertir correctamente "
             "el PDF a DOCX.\n\n"
@@ -1085,7 +1032,6 @@ def convertir_pdf_a_docx(
                 errores
             )
         )
-
 
     raise RuntimeError(
         "No existe un motor disponible para convertir "
@@ -1100,35 +1046,35 @@ def convertir_pdf_a_documento_editable(
     ruta_origen,
     ruta_destino,
     formato_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
     formato_destino = formato_destino.upper()
 
     error_word = None
 
-
-    # ----------------------------------- #
-    #       Intentar Microsoft Word       #
-    # ----------------------------------- #
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     if detectar_microsoft_word():
-
         informar_progreso(
             callback_progreso,
             10,
             "Abriendo PDF con Microsoft Word..."
         )
 
-
         try:
-
             resultado = convertir_con_word(
                 ruta_origen,
                 ruta_destino,
                 formato_destino
             )
 
+            comprobar_cancelacion(
+                callback_cancelacion
+            )
 
             informar_progreso(
                 callback_progreso,
@@ -1136,43 +1082,42 @@ def convertir_pdf_a_documento_editable(
                 "Documento convertido correctamente."
             )
 
-
             return resultado
 
+        except ConversionPDFDOCXCancelada:
+            eliminar_resultado_parcial(
+                ruta_destino
+            )
+            raise
 
         except Exception as error:
-
             error_word = error
 
+            eliminar_resultado_parcial(
+                ruta_destino
+            )
 
-    # ----------------------------------- #
-    #        Respaldo PDFium + Pandoc     #
-    # ----------------------------------- #
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     if comprobar_respaldo_pandoc(
         formato_destino
     ):
-
         return convertir_pdf_con_pandoc(
             ruta_origen,
             ruta_destino,
             formato_destino,
-            callback_progreso
+            callback_progreso,
+            callback_cancelacion
         )
 
-
-    # ----------------------------------- #
-    #          Ningún motor funcionó      #
-    # ----------------------------------- #
-
     if error_word:
-
         raise RuntimeError(
             "Microsoft Word no pudo convertir el PDF y "
             "no existe un motor de respaldo disponible.\n\n"
             f"{error_word}"
         )
-
 
     raise RuntimeError(
         "No existe un motor disponible para convertir "
@@ -1187,34 +1132,26 @@ def convertir_pdf_a_documento(
     ruta_origen,
     ruta_destino,
     formato_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
     formato_destino = formato_destino.upper()
 
-
-    # ----------------------------------- #
-    #          DOCX especializado         #
-    # ----------------------------------- #
-
     if formato_destino == "DOCX":
-
         return convertir_pdf_a_docx(
             ruta_origen,
             ruta_destino,
-            callback_progreso
+            callback_progreso,
+            callback_cancelacion
         )
-
-
-    # ----------------------------------- #
-    #           ODT / RTF                 #
-    # ----------------------------------- #
 
     return convertir_pdf_a_documento_editable(
         ruta_origen,
         ruta_destino,
         formato_destino,
-        callback_progreso
+        callback_progreso,
+        callback_cancelacion
     )
 
 
@@ -1229,12 +1166,9 @@ def conversion_pdf_implementada(
     if not ruta_origen.lower().endswith(
         ".pdf"
     ):
-
         return False
 
-
     formato_destino = formato_destino.upper()
-
 
     return formato_destino in (
         FORMATOS_IMAGEN_PDF
@@ -1253,125 +1187,95 @@ def comprobar_pdf_disponible(
 
     formato_destino = formato_destino.upper()
 
-
-    # ----------------------------------- #
-    #       Comprobar implementación      #
-    # ----------------------------------- #
-
     if not conversion_pdf_implementada(
         ruta_origen,
         formato_destino
     ):
-
         return (
             False,
             f"La conversión de PDF a {formato_destino} "
             f"todavía no está implementada."
         )
 
-
-    # ----------------------------------- #
-    #           Salidas de imagen         #
-    # ----------------------------------- #
-
     if formato_destino in FORMATOS_IMAGEN_PDF:
-
         if not detectar_pdfium():
-
             return (
                 False,
                 "La conversión de PDF a imágenes necesita "
                 "pypdfium2, pero no se encontró instalado."
             )
 
-
         try:
-
             obtener_cantidad_paginas_pdf(
                 ruta_origen
             )
 
-
         except Exception as error:
-
             return (
                 False,
-                str(error)
+                str(
+                    error
+                )
             )
-
 
         return True, None
 
-
-    # ----------------------------------- #
-    #          TXT y HTML                 #
-    # ----------------------------------- #
-
     if formato_destino in FORMATOS_TEXTO_PDF:
-
         if not detectar_pdfium():
-
             return (
                 False,
                 "La extracción de texto del PDF necesita "
                 "pypdfium2, pero no se encontró instalado."
             )
 
-
         return True, None
 
-
-    # ----------------------------------- #
-    #              DOCX                   #
-    # ----------------------------------- #
-
     if formato_destino == "DOCX":
-
-        if detectar_aspose_pdf():
-
+        if motor_pdf_docx_disponible():
             return True, None
-
 
         if detectar_microsoft_word():
-
             return True, None
-
 
         if comprobar_respaldo_pandoc(
             "DOCX"
         ):
-
             return True, None
 
+        faltantes = (
+            dependencias_pdf_docx_faltantes()
+        )
+
+        detalle = ""
+
+        if faltantes:
+            detalle = (
+                "\n\nComponentes faltantes del motor propio:\n- "
+                + "\n- ".join(
+                    faltantes
+                )
+            )
 
         return (
             False,
-            "Para convertir PDF a DOCX se necesita "
-            "Aspose.PDF, Microsoft Word o el respaldo "
-            "formado por pypdfium2 y Pandoc."
+            "No existe un motor disponible para convertir "
+            "PDF a DOCX. El motor propio no está disponible, "
+            "Microsoft Word no está disponible y tampoco "
+            "existe el respaldo PDFium + Pandoc."
+            + detalle
         )
-
-
-    # ----------------------------------- #
-    #            ODT / RTF                #
-    # ----------------------------------- #
 
     if formato_destino in {
         "ODT",
         "RTF"
     }:
-
         if detectar_microsoft_word():
-
             return True, None
-
 
         if comprobar_respaldo_pandoc(
             formato_destino
         ):
-
             return True, None
-
 
         return (
             False,
@@ -1379,7 +1283,6 @@ def comprobar_pdf_disponible(
             "Microsoft Word o el respaldo formado por "
             "pypdfium2 y Pandoc."
         )
-
 
     return (
         False,
@@ -1394,52 +1297,45 @@ def convertir_pdf(
     ruta_origen,
     ruta_destino,
     formato_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
     formato_destino = formato_destino.upper()
 
-
-    # ----------------------------------- #
-    #             Imágenes                #
-    # ----------------------------------- #
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     if formato_destino in FORMATOS_IMAGEN_PDF:
-
         return convertir_pdf_a_imagen(
             ruta_origen,
             ruta_destino,
             formato_destino,
-            callback_progreso
+            callback_progreso,
+            callback_cancelacion
         )
 
-
-    # ----------------------------------- #
-    #               TXT                   #
-    # ----------------------------------- #
-
     if formato_destino == "TXT":
-
         return convertir_pdf_a_txt(
             ruta_origen,
             ruta_destino,
-            callback_progreso
+            callback_progreso,
+            callback_cancelacion
         )
 
-
-    # ----------------------------------- #
-    #              HTML                   #
-    # ----------------------------------- #
-
     if formato_destino == "HTML":
-
         resultado = convertir_pdf_a_html(
             ruta_origen,
             ruta_destino,
             callback_progreso,
-            97
+            97,
+            callback_cancelacion
         )
 
+        comprobar_cancelacion(
+            callback_cancelacion
+        )
 
         informar_progreso(
             callback_progreso,
@@ -1447,23 +1343,16 @@ def convertir_pdf(
             "Documento HTML creado correctamente."
         )
 
-
         return resultado
 
-
-    # ----------------------------------- #
-    #       Documentos editables          #
-    # ----------------------------------- #
-
     if formato_destino in FORMATOS_DOCUMENTO_PDF:
-
         return convertir_pdf_a_documento(
             ruta_origen,
             ruta_destino,
             formato_destino,
-            callback_progreso
+            callback_progreso,
+            callback_cancelacion
         )
-
 
     raise NotImplementedError(
         f"La conversión de PDF a {formato_destino} "

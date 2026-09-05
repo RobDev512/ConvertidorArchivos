@@ -2,9 +2,13 @@ import ctypes
 import os
 import sys
 
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import (
+    QIcon
+)
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import (
+    QApplication
+)
 
 from funciones.configuracion_app import (
     ID_APLICACION_WINDOWS,
@@ -40,7 +44,6 @@ def configurar_identidad_windows():
 
         return
 
-
     try:
 
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
@@ -63,16 +66,13 @@ def configurar_barra_superior(
         ventana
     )
 
-    ventana.barra_superior = barra_superior
+    ventana.barra_superior = (
+        barra_superior
+    )
 
     ventana.setMenuWidget(
         barra_superior
     )
-
-
-    # ----------------------------------- #
-    #             Unir PDFs               #
-    # ----------------------------------- #
 
     barra_superior.unir_pdfs_solicitado.connect(
         lambda:
@@ -82,11 +82,6 @@ def configurar_barra_superior(
         )
     )
 
-
-    # ----------------------------------- #
-    #           Dividir PDF               #
-    # ----------------------------------- #
-
     barra_superior.dividir_pdf_solicitado.connect(
         lambda:
         mostrar_herramienta(
@@ -94,11 +89,6 @@ def configurar_barra_superior(
             "dividir_pdf"
         )
     )
-
-
-    # ----------------------------------- #
-    #         Extraer páginas             #
-    # ----------------------------------- #
 
     barra_superior.extraer_paginas_solicitado.connect(
         lambda:
@@ -108,11 +98,6 @@ def configurar_barra_superior(
         )
     )
 
-
-    # ----------------------------------- #
-    #        Reordenar páginas            #
-    # ----------------------------------- #
-
     barra_superior.reordenar_paginas_solicitado.connect(
         lambda:
         mostrar_herramienta(
@@ -120,10 +105,6 @@ def configurar_barra_superior(
             "reordenar_paginas"
         )
     )
-
-    # ----------------------------------- #
-    #          Comprimir PDF              #
-    # ----------------------------------- #
 
     barra_superior.comprimir_pdf_solicitado.connect(
         lambda:
@@ -133,9 +114,45 @@ def configurar_barra_superior(
         )
     )
 
-    # ----------------------------------- #
-    #            Acerca de                #
-    # ----------------------------------- #
+    barra_superior.redimensionar_imagenes_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "redimensionar_imagenes"
+        )
+    )
+
+    barra_superior.comprimir_imagenes_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "comprimir_imagenes"
+        )
+    )
+
+    barra_superior.imagenes_a_pdf_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "imagenes_a_pdf"
+        )
+    )
+
+    barra_superior.mejorar_calidad_imagenes_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "mejorar_calidad_imagenes"
+        )
+    )
+
+    barra_superior.quitar_fondo_imagenes_solicitado.connect(
+        lambda:
+        mostrar_herramienta(
+            ventana,
+            "quitar_fondo_imagenes"
+        )
+    )
 
     barra_superior.acerca_de_solicitado.connect(
         lambda:
@@ -153,10 +170,6 @@ def mostrar_herramienta(
     herramienta
 ):
 
-    # ----------------------------------- #
-    #       Crear ventana una vez         #
-    # ----------------------------------- #
-
     if (
         not hasattr(
             ventana,
@@ -169,7 +182,6 @@ def mostrar_herramienta(
             VentanaHerramientas()
         )
 
-
         ventana.ventana_herramientas.volver_solicitado.connect(
             lambda:
             volver_al_convertidor(
@@ -177,35 +189,15 @@ def mostrar_herramienta(
             )
         )
 
-
-    # ----------------------------------- #
-    #      Seleccionar herramienta        #
-    # ----------------------------------- #
-
     ventana.ventana_herramientas.mostrar_herramienta(
         herramienta
     )
-
-
-    # ----------------------------------- #
-    #        Centrar herramienta          #
-    # ----------------------------------- #
 
     ventana.ventana_herramientas.centrar_en_pantalla(
         ventana
     )
 
-
-    # ----------------------------------- #
-    #      Ocultar ventana principal      #
-    # ----------------------------------- #
-
     ventana.hide()
-
-
-    # ----------------------------------- #
-    #        Mostrar herramienta          #
-    # ----------------------------------- #
 
     ventana.ventana_herramientas.show()
 
@@ -226,10 +218,12 @@ def volver_al_convertidor(
         "ventana_herramientas"
     ):
 
-        if ventana.ventana_herramientas is not None:
+        if (
+            ventana.ventana_herramientas
+            is not None
+        ):
 
             ventana.ventana_herramientas.hide()
-
 
     ventana.show()
 
@@ -253,17 +247,15 @@ def mostrar_acerca_de(
 
 
 # ================================================================
-# CREAR APLICACIÓN
+# CREAR APLICACION
 # ================================================================
 def crear_aplicacion():
 
     configurar_identidad_windows()
 
-
     aplicacion = QApplication(
         sys.argv
     )
-
 
     aplicacion.setApplicationName(
         NOMBRE_APLICACION
@@ -281,13 +273,9 @@ def crear_aplicacion():
         ORGANIZACION_APLICACION
     )
 
-
-    # ----------------------------------- #
-    #          Icono principal            #
-    # ----------------------------------- #
-
-    ruta_icono = obtener_ruta_icono_principal()
-
+    ruta_icono = (
+        obtener_ruta_icono_principal()
+    )
 
     if os.path.isfile(
         ruta_icono
@@ -299,40 +287,23 @@ def crear_aplicacion():
             )
         )
 
-
     return aplicacion
 
 
 # ================================================================
-# INICIAR APLICACIÓN
+# INICIAR APLICACION
 # ================================================================
 def iniciar_aplicacion():
 
     aplicacion = crear_aplicacion()
 
-
-    # ----------------------------------- #
-    #         Ventana principal           #
-    # ----------------------------------- #
-
     ventana = VentanaPrincipal()
-
-
-    # ----------------------------------- #
-    #          Barra superior             #
-    # ----------------------------------- #
 
     configurar_barra_superior(
         ventana
     )
 
-
-    # ----------------------------------- #
-    #              Mostrar                #
-    # ----------------------------------- #
-
     ventana.show()
-
 
     return aplicacion.exec()
 

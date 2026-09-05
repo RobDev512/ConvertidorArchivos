@@ -1,10 +1,10 @@
 # Convertidor de Archivos
 
-Aplicación de escritorio para Windows que permite convertir archivos entre distintos formatos de forma local.
+Aplicación de escritorio para Windows que permite convertir archivos y trabajar con documentos e imágenes de forma local.
 
 ## Versión actual
 
-**1.1.0**
+**1.1.1**
 
 ## Características
 
@@ -22,7 +22,7 @@ Aplicación de escritorio para Windows que permite convertir archivos entre dist
 
 ## Herramientas PDF
 
-La versión 1.1.0 incorpora una nueva sección de herramientas para trabajar directamente con documentos PDF:
+La sección PDF incluye:
 
 - Unir PDFs
 - Dividir PDF
@@ -30,79 +30,114 @@ La versión 1.1.0 incorpora una nueva sección de herramientas para trabajar dir
 - Reordenar páginas
 - Comprimir PDF
 
-### Unir PDFs
+### PDF → DOCX
 
-Permite combinar páginas de uno o varios documentos PDF.
+La versión 1.1.1 incorpora un motor propio para convertir PDF a DOCX.
 
-- Miniaturas de páginas
-- Reordenamiento mediante arrastrar y soltar
-- Eliminación de páginas
-- Combinación de documentos completos o páginas específicas
+El proceso puede utilizar información de texto, imágenes, fondos y estructura del documento sin depender de Aspose.PDF.
 
-### Dividir PDF
+Cuando corresponde, la aplicación también puede utilizar Microsoft Word o motores de respaldo compatibles disponibles en el equipo.
 
-Permite separar un PDF de distintas formas:
+## Herramientas de imágenes
 
-- Cortes manuales
-- Una página por archivo
-- Dividir cada cierta cantidad de páginas
-- Extraer una selección a un PDF
-- Crear un PDF por página seleccionada
-- Separar páginas seleccionadas y páginas restantes
+La versión 1.1.1 completa la sección de herramientas de imágenes con cinco utilidades.
 
-### Extraer páginas
+### Redimensionar
 
-Permite exportar páginas concretas de un PDF.
+Permite cambiar el tamaño de una o varias imágenes mediante:
 
-Formatos de imagen:
+- Píxeles
+- Porcentaje
+- Centímetros y PPI
+- Conservación opcional de proporciones
+- Control para evitar ampliaciones accidentales
 
-- JPG
-- PNG
-- WebP
+### Comprimir imágenes
 
-También permite:
+Permite reducir el peso de imágenes con controles de calidad y previsualización.
 
-- Extraer el texto de varias páginas a un TXT
-- Crear un TXT independiente por página
+### Imágenes → PDF
 
-### Reordenar páginas
+Permite crear documentos PDF a partir de varias imágenes.
 
-Permite cambiar visualmente el orden de las páginas mediante arrastrar y soltar y generar un nuevo PDF.
+Incluye:
 
-### Comprimir PDF
+- Configuración por página
+- Tamaños de papel habituales
+- Orientación y ajustes de página
+- Reordenamiento de imágenes
+- Salida a un único PDF
 
-Permite reducir el tamaño de archivos PDF mediante distintos niveles de compresión:
+### Mejorar calidad
 
-- Sin pérdida
-- Equilibrada
-- Fuerte
+Permite aumentar la resolución de una imagen mediante:
+
+- Real-ESRGAN local
+- Mejora clásica conservadora
+- Escalas 2×, 3× y 4×
+- Modelos para fotografía e ilustración
+
+La superresolución se ejecuta localmente y no necesita subir imágenes a Internet.
+
+### Quitar fondo
+
+Permite eliminar el fondo de una imagen y guardar el resultado como PNG con transparencia.
+
+Incluye tres modelos locales:
+
+- U²-NetP
+- IS-Net General Use
+- BiRefNet General
+
+También permite ajustar suavizado de bordes y tratamiento de transparencia.
 
 ## Motores y tecnologías
 
 La aplicación puede utilizar:
 
+- Motor propio PDF → DOCX
 - LibreOffice
 - ImageMagick
 - 7-Zip
 - Pandoc
 - PDFium
 - pypdf
-- Aspose.PDF
+- pdfplumber
+- pikepdf
+- python-docx
+- lxml
+- OpenPyXL
+- Pillow
+- NumPy
+- Real-ESRGAN NCNN/Vulkan
+- rembg
+- ONNX Runtime
+- U²-NetP
+- IS-Net
+- BiRefNet
 - Microsoft Office, cuando está disponible
 - WinRAR, cuando está disponible
 
 ## Procesamiento local
 
-Las conversiones se realizan localmente en el equipo.
+Las conversiones y las herramientas de imágenes se realizan localmente en el equipo.
 
-No es necesario subir documentos a servicios externos para utilizar las funciones principales del programa.
+Los modelos de IA incluidos funcionan sin necesidad de subir imágenes a servicios externos y no requieren conexión a Internet durante su uso.
 
 ## Instalación
 
 La aplicación está disponible para **Windows de 64 bits**.
 
-[Descargar Convertidor de Archivos 1.1.0](https://github.com/RobDev512/ConvertidorArchivos/releases/download/v1.1.0/ConvertidorArchivos_Setup_1.1.0.exe)
+[Descargar Convertidor de Archivos 1.1.1](https://github.com/RobDev512/ConvertidorArchivos/releases/download/v1.1.1/ConvertidorArchivos_Setup_1.1.1.exe)
 
 Ejecuta el instalador y sigue los pasos indicados.
 
+El instalador muestra el tamaño del paquete y el espacio requerido antes de comenzar la instalación.
+
 No es necesario instalar Python ni los motores incluidos por separado.
+
+## Licencias de terceros
+
+La aplicación utiliza bibliotecas, motores y modelos de terceros sujetos a sus propias licencias.
+
+Los avisos correspondientes se incluyen en la carpeta `licencias_terceros` de la instalación.

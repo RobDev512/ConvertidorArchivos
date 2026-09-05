@@ -20,8 +20,6 @@ venv/
 env/
 ENV/
 
-.venv_aspose_pdf/
-
 
 # ================================================================
 # COMPILACIÓN
@@ -71,7 +69,9 @@ Desktop.ini
 # ================================================================
 
 prueba_*.py
+probar_*.py
 test_*.py
+pruebas_pdf_docx/
 
 *.ppst
 
@@ -80,5 +80,14 @@ test_*.py
 # DOCUMENTOS GENERADOS PARA PRUEBA
 # ================================================================
 
-*_Aspose*.docx
 *_pdf2docx.docx
+resultado_motor.docx
+
+
+# ================================================================
+# INFORMES LOCALES DE DESARROLLO
+# ================================================================
+
+requisitos_actuales.txt
+motores_actuales.txt
+licencias_actuales.txt

@@ -4,4 +4,10 @@ pypdfium2
 pypdf
 pywin32
 openpyxl
-aspose-pdf
+pdfplumber
+pikepdf
+python-docx
+lxml
+numpy
+onnxruntime
+rembg

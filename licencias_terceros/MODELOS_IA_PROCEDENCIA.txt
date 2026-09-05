@@ -1,0 +1,50 @@
+﻿MODELOS DE IA INCLUIDOS EN CONVERTIDOR DE ARCHIVOS 1.1.1
+========================================================
+
+Esta aplicaciÃ³n incluye modelos locales para funciones de procesamiento
+de imÃ¡genes. Los proyectos originales y sus licencias se documentan en
+esta misma carpeta.
+
+MEJORAR CALIDAD
+---------------
+
+Real-ESRGAN
+Proyecto:
+https://github.com/xinntao/Real-ESRGAN
+
+Motor NCNN/Vulkan:
+https://github.com/Tencent/ncnn
+
+
+QUITAR FONDO
+------------
+
+UÂ²-NetP
+Proyecto original:
+https://github.com/xuebinqin/U-2-Net
+
+IS-Net General Use
+Proyecto original DIS:
+https://github.com/xuebinqin/DIS
+
+BiRefNet General
+Proyecto original:
+https://github.com/ZhengPeng7/BiRefNet
+
+La ejecuciÃ³n ONNX se realiza mediante:
+https://github.com/microsoft/onnxruntime
+
+La integraciÃ³n de eliminaciÃ³n de fondo utiliza:
+https://github.com/danielgatis/rembg
+
+
+NOTA
+----
+
+Los archivos ONNX utilizados por la aplicaciÃ³n son conversiones o
+distribuciones compatibles con los modelos anteriores. Las licencias de
+los proyectos originales y de los motores de ejecuciÃ³n se incluyen por
+separado en esta carpeta.
+
+Este archivo es Ãºnicamente informativo y no sustituye los textos de
+licencia originales.

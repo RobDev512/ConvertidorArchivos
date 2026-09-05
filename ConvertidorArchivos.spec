@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import glob
 import os
 
 from PyInstaller.utils.hooks import (
@@ -26,6 +27,12 @@ CARPETA_RECURSOS = os.path.join(
     "recursos"
 )
 
+CARPETA_PDF_DOCX = os.path.join(
+    CARPETA_PROYECTO,
+    "conversiones",
+    "pdf_docx"
+)
+
 RUTA_ICONO = os.path.join(
     CARPETA_RECURSOS,
     "iconos",
@@ -38,20 +45,12 @@ RUTA_VERSION = os.path.join(
 )
 
 
-# ----------------------------------- #
-#      Icono opcional de la app       #
-# ----------------------------------- #
-
 if not os.path.isfile(
     RUTA_ICONO
 ):
 
     RUTA_ICONO = None
 
-
-# ----------------------------------- #
-#      Información de versión         #
-# ----------------------------------- #
 
 if not os.path.isfile(
     RUTA_VERSION
@@ -70,7 +69,46 @@ imports_ocultos = []
 
 
 # ================================================================
-# RECURSOS DE LA APLICACIÓN
+# AGREGAR PAQUETE COMPLETO
+# ================================================================
+def agregar_paquete(
+    nombre_modulo,
+    nombre_distribucion=None
+):
+
+    datos_paquete, binarios_paquete, imports_paquete = collect_all(
+        nombre_modulo
+    )
+
+    datos.extend(
+        datos_paquete
+    )
+
+    binarios.extend(
+        binarios_paquete
+    )
+
+    imports_ocultos.extend(
+        imports_paquete
+    )
+
+    if nombre_distribucion:
+
+        try:
+
+            datos.extend(
+                copy_metadata(
+                    nombre_distribucion
+                )
+            )
+
+        except Exception:
+
+            pass
+
+
+# ================================================================
+# RECURSOS DE LA APLICACION
 # ================================================================
 
 if os.path.isdir(
@@ -86,77 +124,109 @@ if os.path.isdir(
 
 
 # ================================================================
-# ASPOSE.PDF
+# FUENTES DEL MOTOR PDF A DOCX
 # ================================================================
 
-datos_aspose, binarios_aspose, imports_aspose = collect_all(
-    "aspose.pdf"
-)
+if os.path.isdir(
+    CARPETA_PDF_DOCX
+):
 
-datos += datos_aspose
-binarios += binarios_aspose
-imports_ocultos += imports_aspose
+    for ruta_modulo in glob.glob(
+        os.path.join(
+            CARPETA_PDF_DOCX,
+            "*.py"
+        )
+    ):
 
-
-# ----------------------------------- #
-#       Metadatos de Aspose.PDF       #
-# ----------------------------------- #
-
-datos += copy_metadata(
-    "aspose-pdf"
-)
+        datos.append(
+            (
+                ruta_modulo,
+                os.path.join(
+                    "conversiones",
+                    "pdf_docx"
+                )
+            )
+        )
 
 
 # ================================================================
-# PDFIUM
+# DEPENDENCIAS PRINCIPALES
 # ================================================================
 
-datos_pdfium, binarios_pdfium, imports_pdfium = collect_all(
+agregar_paquete(
+    "pypdfium2",
     "pypdfium2"
 )
 
-datos += datos_pdfium
-binarios += binarios_pdfium
-imports_ocultos += imports_pdfium
-
-
-# ================================================================
-# PYPDF
-# ================================================================
-
-datos_pypdf, binarios_pypdf, imports_pypdf = collect_all(
+agregar_paquete(
+    "pypdf",
     "pypdf"
 )
 
-datos += datos_pypdf
-binarios += binarios_pypdf
-imports_ocultos += imports_pypdf
-
-
-# ================================================================
-# PILLOW
-# ================================================================
-
-datos_pillow, binarios_pillow, imports_pillow = collect_all(
-    "PIL"
+agregar_paquete(
+    "PIL",
+    "Pillow"
 )
 
-datos += datos_pillow
-binarios += binarios_pillow
-imports_ocultos += imports_pillow
-
-
-# ================================================================
-# OPENPYXL
-# ================================================================
-
-datos_openpyxl, binarios_openpyxl, imports_openpyxl = collect_all(
+agregar_paquete(
+    "openpyxl",
     "openpyxl"
 )
 
-datos += datos_openpyxl
-binarios += binarios_openpyxl
-imports_ocultos += imports_openpyxl
+
+# ================================================================
+# MOTOR PDF A DOCX
+# ================================================================
+
+agregar_paquete(
+    "pdfplumber",
+    "pdfplumber"
+)
+
+agregar_paquete(
+    "pdfminer",
+    "pdfminer.six"
+)
+
+agregar_paquete(
+    "pikepdf",
+    "pikepdf"
+)
+
+agregar_paquete(
+    "docx",
+    "python-docx"
+)
+
+agregar_paquete(
+    "lxml",
+    "lxml"
+)
+
+
+# ================================================================
+# QUITAR FONDO / IA LOCAL
+# ================================================================
+
+agregar_paquete(
+    "rembg",
+    "rembg"
+)
+
+agregar_paquete(
+    "onnxruntime",
+    "onnxruntime"
+)
+
+agregar_paquete(
+    "pymatting",
+    "PyMatting"
+)
+
+agregar_paquete(
+    "skimage",
+    "scikit-image"
+)
 
 
 # ================================================================
@@ -164,9 +234,10 @@ imports_ocultos += imports_openpyxl
 # ================================================================
 
 imports_ocultos += [
-    # Aspose
-    "aspose",
-    "aspose.pdf",
+    # Motor PDF a DOCX propio
+    "conversiones.pdf_docx",
+    "conversiones.pdf_docx.motor_pdf_docx",
+    "conversiones.pdf_docx.extraer_fondos_pdf",
 
     # PDFium
     "pypdfium2",
@@ -180,8 +251,32 @@ imports_ocultos += [
     "PIL.Image",
     "PIL.ImageQt",
 
+    # PDF a DOCX
+    "pdfplumber",
+    "pdfminer",
+    "pdfminer.high_level",
+    "pikepdf",
+    "docx",
+    "lxml",
+    "lxml.etree",
+
     # Excel
     "openpyxl",
+
+    # Quitar fondo / ONNX
+    "numpy",
+    "onnxruntime",
+    "onnxruntime.capi._pybind_state",
+    "onnxruntime.capi.onnxruntime_pybind11_state",
+    "rembg",
+    "rembg.bg",
+    "rembg.session_factory",
+    "rembg.sessions",
+    "rembg.sessions.u2netp",
+    "rembg.sessions.dis_general_use",
+    "rembg.sessions.birefnet_general",
+    "pymatting",
+    "skimage",
 
     # Microsoft Office / COM
     "win32com",
@@ -192,10 +287,6 @@ imports_ocultos += [
 ]
 
 
-# ----------------------------------- #
-#        Eliminar duplicados          #
-# ----------------------------------- #
-
 imports_ocultos = list(
     dict.fromkeys(
         imports_ocultos
@@ -204,7 +295,7 @@ imports_ocultos = list(
 
 
 # ================================================================
-# ANÁLISIS
+# ANALISIS
 # ================================================================
 
 analisis = Analysis(
@@ -221,6 +312,8 @@ analisis = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[
+        "aspose",
+        "aspose.pdf",
         "aspose.words",
         "pdf2docx",
         "fitz",

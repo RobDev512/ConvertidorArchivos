@@ -32,12 +32,14 @@ from funciones.configuracion_app import (
 
 
 # ================================================================
-# DIÁLOGO ACERCA DE
+# DIALOGO ACERCA DE
 # ================================================================
-class DialogoAcercaDe(QDialog):
+class DialogoAcercaDe(
+    QDialog
+):
 
     # ============================================================
-    # INICIALIZACIÓN
+    # INICIALIZACION
     # ============================================================
     def __init__(
         self,
@@ -49,6 +51,7 @@ class DialogoAcercaDe(QDialog):
         )
 
         self.configurar_ventana()
+
         self.crear_interfaz()
 
 
@@ -68,22 +71,16 @@ class DialogoAcercaDe(QDialog):
         )
 
         self.resize(
-            520,
-            650
+            560,
+            700
         )
 
         self.setMinimumSize(
-            470,
-            540
+            500,
+            570
         )
 
-
-        # ----------------------------------- #
-        #        Icono de la ventana          #
-        # ----------------------------------- #
-
         ruta_icono = obtener_ruta_icono_windows()
-
 
         if os.path.isfile(
             ruta_icono
@@ -118,21 +115,11 @@ class DialogoAcercaDe(QDialog):
             18
         )
 
-
-        # ----------------------------------- #
-        #             Cabecera                #
-        # ----------------------------------- #
-
         cabecera = self.crear_cabecera()
 
         layout_principal.addWidget(
             cabecera
         )
-
-
-        # ----------------------------------- #
-        #           Separador                 #
-        # ----------------------------------- #
 
         separador = QFrame()
 
@@ -148,11 +135,6 @@ class DialogoAcercaDe(QDialog):
             separador
         )
 
-
-        # ----------------------------------- #
-        #            Contenido                #
-        # ----------------------------------- #
-
         contenido = self.crear_contenido()
 
         layout_principal.addWidget(
@@ -160,21 +142,11 @@ class DialogoAcercaDe(QDialog):
             1
         )
 
-
-        # ----------------------------------- #
-        #             Botones                 #
-        # ----------------------------------- #
-
         layout_botones = QHBoxLayout()
 
         layout_botones.setSpacing(
             10
         )
-
-
-        # ----------------------------------- #
-        #      Licencias de terceros          #
-        # ----------------------------------- #
 
         self.boton_licencias = QPushButton(
             "Licencias de terceros"
@@ -184,9 +156,7 @@ class DialogoAcercaDe(QDialog):
             self.abrir_licencias
         )
 
-
         carpeta_licencias = obtener_carpeta_licencias()
-
 
         if not os.path.isdir(
             carpeta_licencias
@@ -200,17 +170,11 @@ class DialogoAcercaDe(QDialog):
                 "La carpeta de licencias todavía no está disponible."
             )
 
-
         layout_botones.addWidget(
             self.boton_licencias
         )
 
         layout_botones.addStretch()
-
-
-        # ----------------------------------- #
-        #              Cerrar                 #
-        # ----------------------------------- #
 
         boton_cerrar = QPushButton(
             "Cerrar"
@@ -231,7 +195,6 @@ class DialogoAcercaDe(QDialog):
         layout_botones.addWidget(
             boton_cerrar
         )
-
 
         layout_principal.addLayout(
             layout_botones
@@ -266,11 +229,6 @@ class DialogoAcercaDe(QDialog):
             Qt.AlignmentFlag.AlignCenter
         )
 
-
-        # ----------------------------------- #
-        #               Logo                  #
-        # ----------------------------------- #
-
         etiqueta_logo = QLabel()
 
         etiqueta_logo.setAlignment(
@@ -282,9 +240,7 @@ class DialogoAcercaDe(QDialog):
             170
         )
 
-
         ruta_logo = obtener_ruta_icono_principal()
-
 
         if os.path.isfile(
             ruta_logo
@@ -293,7 +249,6 @@ class DialogoAcercaDe(QDialog):
             pixmap = QPixmap(
                 ruta_logo
             )
-
 
             if not pixmap.isNull():
 
@@ -308,16 +263,10 @@ class DialogoAcercaDe(QDialog):
                     pixmap
                 )
 
-
         layout.addWidget(
             etiqueta_logo,
             alignment=Qt.AlignmentFlag.AlignCenter
         )
-
-
-        # ----------------------------------- #
-        #         Nombre de aplicación        #
-        # ----------------------------------- #
 
         etiqueta_nombre = QLabel(
             NOMBRE_APLICACION
@@ -340,11 +289,6 @@ class DialogoAcercaDe(QDialog):
             etiqueta_nombre
         )
 
-
-        # ----------------------------------- #
-        #             Versión                 #
-        # ----------------------------------- #
-
         etiqueta_version = QLabel(
             f"Versión {VERSION_APLICACION}"
         )
@@ -357,7 +301,7 @@ class DialogoAcercaDe(QDialog):
             """
             QLabel {
                 font-size: 13px;
-                color: #777777;
+                color: #8a8a8a;
             }
             """
         )
@@ -365,7 +309,6 @@ class DialogoAcercaDe(QDialog):
         layout.addWidget(
             etiqueta_version
         )
-
 
         return contenedor
 
@@ -387,7 +330,6 @@ class DialogoAcercaDe(QDialog):
             QFrame.Shape.NoFrame
         )
 
-
         contenido = QWidget()
 
         layout = QVBoxLayout(
@@ -405,14 +347,9 @@ class DialogoAcercaDe(QDialog):
             16
         )
 
-
-        # ----------------------------------- #
-        #          Descripción                #
-        # ----------------------------------- #
-
         descripcion = QLabel(
-            "Aplicación de escritorio para convertir archivos "
-            "de forma local entre diferentes formatos."
+            "Aplicación de escritorio para convertir archivos y "
+            "trabajar con documentos e imágenes de forma local."
         )
 
         descripcion.setWordWrap(
@@ -431,10 +368,65 @@ class DialogoAcercaDe(QDialog):
             descripcion
         )
 
+        titulo_novedades = self.crear_titulo_seccion(
+            "Novedades de la versión 1.1.1"
+        )
 
-        # ----------------------------------- #
-        #             Motores                 #
-        # ----------------------------------- #
+        layout.addWidget(
+            titulo_novedades
+        )
+
+        novedades = QLabel(
+            "• Motor propio PDF → DOCX, sin Aspose.PDF\n"
+            "• Redimensionar imágenes\n"
+            "• Comprimir imágenes\n"
+            "• Imágenes → PDF\n"
+            "• Mejorar calidad con Real-ESRGAN o método clásico\n"
+            "• Quitar fondo con modelos de IA locales"
+        )
+
+        novedades.setWordWrap(
+            True
+        )
+
+        novedades.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+
+        layout.addWidget(
+            novedades
+        )
+
+        titulo_imagenes = self.crear_titulo_seccion(
+            "Imagen e inteligencia artificial"
+        )
+
+        layout.addWidget(
+            titulo_imagenes
+        )
+
+        imagenes = QLabel(
+            "• Pillow\n"
+            "• NumPy\n"
+            "• Real-ESRGAN NCNN/Vulkan\n"
+            "• rembg\n"
+            "• ONNX Runtime\n"
+            "• U²-NetP\n"
+            "• IS-Net General Use\n"
+            "• BiRefNet General"
+        )
+
+        imagenes.setWordWrap(
+            True
+        )
+
+        imagenes.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+
+        layout.addWidget(
+            imagenes
+        )
 
         titulo_motores = self.crear_titulo_seccion(
             "Motores y tecnologías"
@@ -444,15 +436,19 @@ class DialogoAcercaDe(QDialog):
             titulo_motores
         )
 
-
         motores = QLabel(
+            "• Motor propio PDF → DOCX\n"
             "• LibreOffice\n"
             "• ImageMagick\n"
             "• 7-Zip\n"
             "• Pandoc\n"
             "• PDFium\n"
             "• pypdf\n"
-            "• Aspose.PDF\n"
+            "• pdfplumber\n"
+            "• pikepdf\n"
+            "• python-docx\n"
+            "• lxml\n"
+            "• OpenPyXL\n"
             "• Microsoft Office, cuando está disponible\n"
             "• WinRAR, cuando está disponible"
         )
@@ -469,11 +465,6 @@ class DialogoAcercaDe(QDialog):
             motores
         )
 
-
-        # ----------------------------------- #
-        #       Procesamiento local           #
-        # ----------------------------------- #
-
         titulo_procesamiento = self.crear_titulo_seccion(
             "Procesamiento local"
         )
@@ -482,11 +473,11 @@ class DialogoAcercaDe(QDialog):
             titulo_procesamiento
         )
 
-
         procesamiento = QLabel(
-            "Las conversiones se realizan localmente en el equipo. "
-            "La aplicación utiliza sus motores incluidos y, cuando "
-            "corresponde, programas compatibles disponibles en Windows."
+            "Las conversiones y las herramientas de imágenes se "
+            "ejecutan localmente en el equipo. Los modelos de IA "
+            "incluidos no necesitan subir imágenes a servicios externos "
+            "ni requieren conexión a Internet durante su uso."
         )
 
         procesamiento.setWordWrap(
@@ -501,11 +492,6 @@ class DialogoAcercaDe(QDialog):
             procesamiento
         )
 
-
-        # ----------------------------------- #
-        #       Componentes externos          #
-        # ----------------------------------- #
-
         titulo_terceros = self.crear_titulo_seccion(
             "Componentes de terceros"
         )
@@ -514,11 +500,12 @@ class DialogoAcercaDe(QDialog):
             titulo_terceros
         )
 
-
         terceros = QLabel(
-            "Convertidor de Archivos utiliza componentes, bibliotecas "
-            "y motores desarrollados por terceros. Cada uno se encuentra "
-            "sujeto a sus propios términos y licencias."
+            "Convertidor de Archivos utiliza componentes, bibliotecas, "
+            "motores y modelos desarrollados por terceros. Cada uno se "
+            "encuentra sujeto a sus propios términos y licencias. "
+            "Puedes consultar los avisos incluidos mediante el botón "
+            "«Licencias de terceros»."
         )
 
         terceros.setWordWrap(
@@ -533,11 +520,6 @@ class DialogoAcercaDe(QDialog):
             terceros
         )
 
-
-        # ----------------------------------- #
-        #             Versión                 #
-        # ----------------------------------- #
-
         titulo_version = self.crear_titulo_seccion(
             "Información de versión"
         )
@@ -546,10 +528,10 @@ class DialogoAcercaDe(QDialog):
             titulo_version
         )
 
-
         informacion_version = QLabel(
             f"{NOMBRE_APLICACION}\n"
-            f"Versión {VERSION_APLICACION}"
+            f"Versión {VERSION_APLICACION}\n"
+            "Windows de 64 bits"
         )
 
         informacion_version.setWordWrap(
@@ -564,20 +546,17 @@ class DialogoAcercaDe(QDialog):
             informacion_version
         )
 
-
         layout.addStretch()
-
 
         area.setWidget(
             contenido
         )
 
-
         return area
 
 
     # ============================================================
-    # CREAR TÍTULO DE SECCIÓN
+    # CREAR TITULO DE SECCION
     # ============================================================
     def crear_titulo_seccion(
         self,
@@ -609,13 +588,11 @@ class DialogoAcercaDe(QDialog):
 
         carpeta_licencias = obtener_carpeta_licencias()
 
-
         if not os.path.isdir(
             carpeta_licencias
         ):
 
             return
-
 
         QDesktopServices.openUrl(
             QUrl.fromLocalFile(

@@ -56,12 +56,14 @@ QMenu::right-arrow {
 
 
 # ================================================================
-# BOTÓN DE MENÚ CON HOVER
+# BOTON DE MENU CON HOVER
 # ================================================================
-class BotonMenuHover(QToolButton):
+class BotonMenuHover(
+    QToolButton
+):
 
     # ============================================================
-    # INICIALIZACIÓN
+    # INICIALIZACION
     # ============================================================
     def __init__(
         self,
@@ -101,7 +103,6 @@ class BotonMenuHover(QToolButton):
             evento
         )
 
-
         if (
             self.menu() is not None
             and not self.menu().isVisible()
@@ -126,7 +127,7 @@ class BotonMenuHover(QToolButton):
 
 
     # ============================================================
-    # MOSTRAR MENÚ POR HOVER
+    # MOSTRAR MENU POR HOVER
     # ============================================================
     def mostrar_menu_hover(
         self
@@ -134,25 +135,17 @@ class BotonMenuHover(QToolButton):
 
         menu = self.menu()
 
-
         if menu is None:
 
             return
-
 
         if menu.isVisible():
 
             return
 
-
-        # ----------------------------------- #
-        #       Cerrar otro menú abierto      #
-        # ----------------------------------- #
-
         widget_popup = (
             QApplication.activePopupWidget()
         )
-
 
         if (
             widget_popup is not None
@@ -161,22 +154,12 @@ class BotonMenuHover(QToolButton):
 
             widget_popup.close()
 
-
-        # ----------------------------------- #
-        #       Posición bajo el botón        #
-        # ----------------------------------- #
-
         posicion = self.mapToGlobal(
             QPoint(
                 0,
                 self.height()
             )
         )
-
-
-        # ----------------------------------- #
-        #           Mostrar menú              #
-        # ----------------------------------- #
 
         menu.popup(
             posicion
@@ -186,7 +169,9 @@ class BotonMenuHover(QToolButton):
 # ================================================================
 # BARRA SUPERIOR PRINCIPAL
 # ================================================================
-class BarraSuperiorPrincipal(QWidget):
+class BarraSuperiorPrincipal(
+    QWidget
+):
 
     unir_pdfs_solicitado = Signal()
 
@@ -198,11 +183,21 @@ class BarraSuperiorPrincipal(QWidget):
 
     comprimir_pdf_solicitado = Signal()
 
+    redimensionar_imagenes_solicitado = Signal()
+
+    comprimir_imagenes_solicitado = Signal()
+
+    imagenes_a_pdf_solicitado = Signal()
+
+    mejorar_calidad_imagenes_solicitado = Signal()
+
+    quitar_fondo_imagenes_solicitado = Signal()
+
     acerca_de_solicitado = Signal()
 
 
     # ============================================================
-    # INICIALIZACIÓN
+    # INICIALIZACION
     # ============================================================
     def __init__(
         self,
@@ -231,7 +226,6 @@ class BarraSuperiorPrincipal(QWidget):
             42
         )
 
-
         self.distribucion = QHBoxLayout(
             self
         )
@@ -246,11 +240,6 @@ class BarraSuperiorPrincipal(QWidget):
         self.distribucion.setSpacing(
             2
         )
-
-
-        # ----------------------------------- #
-        #          Herramientas               #
-        # ----------------------------------- #
 
         self.menu_herramientas = (
             self.crear_menu_herramientas()
@@ -267,11 +256,6 @@ class BarraSuperiorPrincipal(QWidget):
             self.boton_herramientas
         )
 
-
-        # ----------------------------------- #
-        #              Ayuda                  #
-        # ----------------------------------- #
-
         self.menu_ayuda = (
             self.crear_menu_ayuda()
         )
@@ -287,15 +271,9 @@ class BarraSuperiorPrincipal(QWidget):
             self.boton_ayuda
         )
 
-
         self.distribucion.addStretch(
             1
         )
-
-
-        # ----------------------------------- #
-        #            Apariencia               #
-        # ----------------------------------- #
 
         self.setStyleSheet(
             """
@@ -328,7 +306,7 @@ class BarraSuperiorPrincipal(QWidget):
 
 
     # ============================================================
-    # CREAR BOTÓN DE MENÚ
+    # CREAR BOTON DE MENU
     # ============================================================
     def crear_boton_menu(
         self,
@@ -364,7 +342,7 @@ class BarraSuperiorPrincipal(QWidget):
 
 
     # ============================================================
-    # CREAR MENÚ DE HERRAMIENTAS
+    # CREAR MENU DE HERRAMIENTAS
     # ============================================================
     def crear_menu_herramientas(
         self
@@ -395,11 +373,6 @@ class BarraSuperiorPrincipal(QWidget):
             285
         )
 
-
-        # ----------------------------------- #
-        #            Unir PDFs                #
-        # ----------------------------------- #
-
         accion_unir = menu_pdf.addAction(
             "Unir PDFs"
         )
@@ -408,11 +381,6 @@ class BarraSuperiorPrincipal(QWidget):
             lambda checked=False:
             self.unir_pdfs_solicitado.emit()
         )
-
-
-        # ----------------------------------- #
-        #           Dividir PDF               #
-        # ----------------------------------- #
 
         accion_dividir = menu_pdf.addAction(
             "Dividir PDF"
@@ -423,11 +391,6 @@ class BarraSuperiorPrincipal(QWidget):
             self.dividir_pdf_solicitado.emit()
         )
 
-
-        # ----------------------------------- #
-        #         Extraer páginas             #
-        # ----------------------------------- #
-
         accion_extraer = menu_pdf.addAction(
             "Extraer páginas"
         )
@@ -437,11 +400,6 @@ class BarraSuperiorPrincipal(QWidget):
             self.extraer_paginas_solicitado.emit()
         )
 
-
-        # ----------------------------------- #
-        #        Reordenar páginas            #
-        # ----------------------------------- #
-
         accion_reordenar = menu_pdf.addAction(
             "Reordenar páginas"
         )
@@ -450,11 +408,6 @@ class BarraSuperiorPrincipal(QWidget):
             lambda checked=False:
             self.reordenar_paginas_solicitado.emit()
         )
-
-
-        # ----------------------------------- #
-        #         Comprimir PDF               #
-        # ----------------------------------- #
 
         accion_comprimir = menu_pdf.addAction(
             "Comprimir PDF"
@@ -467,7 +420,7 @@ class BarraSuperiorPrincipal(QWidget):
 
 
         # ========================================================
-        # IMÁGENES
+        # IMAGENES
         # ========================================================
 
         menu_imagenes = menu.addMenu(
@@ -478,46 +431,62 @@ class BarraSuperiorPrincipal(QWidget):
             285
         )
 
-
         accion_redimensionar = (
             menu_imagenes.addAction(
-                "Redimensionar  ·  Próximamente"
+                "Redimensionar"
             )
         )
 
-        accion_redimensionar.setEnabled(
-            False
+        accion_redimensionar.triggered.connect(
+            lambda checked=False:
+            self.redimensionar_imagenes_solicitado.emit()
         )
-
 
         accion_comprimir_imagenes = (
             menu_imagenes.addAction(
-                "Comprimir imágenes  ·  Próximamente"
+                "Comprimir imágenes"
             )
         )
 
-        accion_comprimir_imagenes.setEnabled(
-            False
+        accion_comprimir_imagenes.triggered.connect(
+            lambda checked=False:
+            self.comprimir_imagenes_solicitado.emit()
         )
-
 
         accion_imagenes_pdf = (
             menu_imagenes.addAction(
-                "Imágenes → PDF  ·  Próximamente"
+                "Imágenes → PDF"
             )
         )
 
-        accion_imagenes_pdf.setEnabled(
-            False
+        accion_imagenes_pdf.triggered.connect(
+            lambda checked=False:
+            self.imagenes_a_pdf_solicitado.emit()
         )
 
+        accion_mejorar_calidad = (
+            menu_imagenes.addAction(
+                "Mejorar calidad"
+            )
+        )
 
-        # ========================================================
-        # RESTO DE HERRAMIENTAS
-        # ========================================================
+        accion_mejorar_calidad.triggered.connect(
+            lambda checked=False:
+            self.mejorar_calidad_imagenes_solicitado.emit()
+        )
+
+        accion_quitar_fondo = (
+            menu_imagenes.addAction(
+                "Quitar fondo"
+            )
+        )
+
+        accion_quitar_fondo.triggered.connect(
+            lambda checked=False:
+            self.quitar_fondo_imagenes_solicitado.emit()
+        )
 
         menu.addSeparator()
-
 
         accion_comprimidos = menu.addAction(
             "Comprimidos  ·  Próximamente"
@@ -527,7 +496,6 @@ class BarraSuperiorPrincipal(QWidget):
             False
         )
 
-
         accion_minecraft = menu.addAction(
             "Minecraft  ·  Próximamente"
         )
@@ -536,12 +504,11 @@ class BarraSuperiorPrincipal(QWidget):
             False
         )
 
-
         return menu
 
 
     # ============================================================
-    # CREAR MENÚ DE AYUDA
+    # CREAR MENU DE AYUDA
     # ============================================================
     def crear_menu_ayuda(
         self
@@ -559,7 +526,6 @@ class BarraSuperiorPrincipal(QWidget):
             ESTILO_MENU
         )
 
-
         accion_acerca_de = menu.addAction(
             "Acerca de Convertidor de Archivos"
         )
@@ -569,20 +535,21 @@ class BarraSuperiorPrincipal(QWidget):
             self.acerca_de_solicitado.emit()
         )
 
-
         return menu
 
 
 # ================================================================
 # BARRA SUPERIOR DE HERRAMIENTA
 # ================================================================
-class BarraSuperiorHerramienta(QWidget):
+class BarraSuperiorHerramienta(
+    QWidget
+):
 
     volver_solicitado = Signal()
 
 
     # ============================================================
-    # INICIALIZACIÓN
+    # INICIALIZACION
     # ============================================================
     def __init__(
         self,
@@ -611,7 +578,6 @@ class BarraSuperiorHerramienta(QWidget):
             46
         )
 
-
         self.distribucion = QHBoxLayout(
             self
         )
@@ -626,11 +592,6 @@ class BarraSuperiorHerramienta(QWidget):
         self.distribucion.setSpacing(
             10
         )
-
-
-        # ----------------------------------- #
-        #          Botón volver               #
-        # ----------------------------------- #
 
         self.boton_volver = QToolButton(
             self
@@ -652,11 +613,6 @@ class BarraSuperiorHerramienta(QWidget):
             self.boton_volver
         )
 
-
-        # ----------------------------------- #
-        #          Separador                  #
-        # ----------------------------------- #
-
         self.etiqueta_separador = QLabel(
             "│"
         )
@@ -668,11 +624,6 @@ class BarraSuperiorHerramienta(QWidget):
         self.distribucion.addWidget(
             self.etiqueta_separador
         )
-
-
-        # ----------------------------------- #
-        #             Sección                 #
-        # ----------------------------------- #
 
         self.etiqueta_seccion = QLabel(
             "Herramientas"
@@ -692,15 +643,9 @@ class BarraSuperiorHerramienta(QWidget):
             self.etiqueta_seccion
         )
 
-
         self.distribucion.addStretch(
             1
         )
-
-
-        # ----------------------------------- #
-        #            Apariencia               #
-        # ----------------------------------- #
 
         self.setStyleSheet(
             """
@@ -729,7 +674,7 @@ class BarraSuperiorHerramienta(QWidget):
 
 
     # ============================================================
-    # ESTABLECER SECCIÓN
+    # ESTABLECER SECCION
     # ============================================================
     def establecer_seccion(
         self,

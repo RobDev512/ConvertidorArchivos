@@ -11,19 +11,15 @@ import sys
 # ================================================================
 def obtener_carpeta_aplicacion():
 
-    # Aplicación empaquetada
     if getattr(
         sys,
         "frozen",
         False
     ):
-
         return os.path.dirname(
             sys.executable
         )
 
-
-    # Proyecto ejecutado directamente
     return os.path.dirname(
         os.path.dirname(
             os.path.abspath(
@@ -52,35 +48,20 @@ def buscar_ejecutable(
     rutas_comunes=None
 ):
 
-    # ----------------------------------- #
-    #              PATH                   #
-    # ----------------------------------- #
-
     for nombre in nombres:
-
         ruta = shutil.which(
             nombre
         )
 
         if ruta:
-
             return ruta
 
-
-    # ----------------------------------- #
-    #          Rutas conocidas            #
-    # ----------------------------------- #
-
     if rutas_comunes:
-
         for ruta in rutas_comunes:
-
             if os.path.isfile(
                 ruta
             ):
-
                 return ruta
-
 
     return None
 
@@ -93,7 +74,6 @@ def biblioteca_instalada(
 ):
 
     try:
-
         return (
             importlib.util.find_spec(
                 nombre
@@ -105,7 +85,6 @@ def biblioteca_instalada(
         ImportError,
         ModuleNotFoundError
     ):
-
         return False
 
 
@@ -117,15 +96,12 @@ def paquete_instalado(
 ):
 
     try:
-
         importlib.metadata.version(
             nombre
         )
-
         return True
 
     except importlib.metadata.PackageNotFoundError:
-
         return False
 
 
@@ -137,13 +113,11 @@ def obtener_version_paquete(
 ):
 
     try:
-
         return importlib.metadata.version(
             nombre
         )
 
     except importlib.metadata.PackageNotFoundError:
-
         return None
 
 
@@ -168,72 +142,43 @@ def detectar_openpyxl():
 
 
 # ================================================================
-# DETECTAR ASPOSE.PDF
+# DETECTAR PDFPLUMBER
 # ================================================================
-def detectar_aspose_pdf():
+def detectar_pdfplumber():
 
-    return paquete_instalado(
-        "aspose-pdf"
+    return biblioteca_instalada(
+        "pdfplumber"
     )
 
 
 # ================================================================
-# OBTENER VERSIÓN DE ASPOSE.PDF
+# DETECTAR PIKEPDF
 # ================================================================
-def obtener_version_aspose_pdf():
+def detectar_pikepdf():
 
-    return obtener_version_paquete(
-        "aspose-pdf"
+    return biblioteca_instalada(
+        "pikepdf"
     )
 
 
 # ================================================================
-# DETECTAR LICENCIA DE ASPOSE.PDF
+# DETECTAR PYTHON-DOCX
 # ================================================================
-def detectar_licencia_aspose_pdf():
+def detectar_python_docx():
 
-    carpeta_aspose = os.path.join(
-        obtener_carpeta_motores(),
-        "aspose"
+    return biblioteca_instalada(
+        "docx"
     )
 
-    nombres = [
-        "Aspose.PDF.lic",
-        "Aspose.Total.lic"
-    ]
 
+# ================================================================
+# DETECTAR LXML
+# ================================================================
+def detectar_lxml():
 
-    for nombre in nombres:
-
-        ruta = os.path.join(
-            carpeta_aspose,
-            nombre
-        )
-
-        if os.path.isfile(
-            ruta
-        ):
-
-            return ruta
-
-
-    ruta_entorno = os.environ.get(
-        "ASPOSE_PDF_LICENSE"
+    return biblioteca_instalada(
+        "lxml"
     )
-
-    if (
-        ruta_entorno
-        and os.path.isfile(
-            ruta_entorno
-        )
-    ):
-
-        return os.path.abspath(
-            ruta_entorno
-        )
-
-
-    return None
 
 
 # ================================================================
@@ -244,25 +189,18 @@ def componente_com_registrado(
 ):
 
     if os.name != "nt":
-
         return False
 
-
     try:
-
         import winreg
-
 
         with winreg.OpenKey(
             winreg.HKEY_CLASSES_ROOT,
             rf"{nombre}\CLSID"
         ):
-
             return True
 
-
     except OSError:
-
         return False
 
 
@@ -361,15 +299,11 @@ def detectar_libreoffice_administrado():
         )
     ]
 
-
     for ruta in rutas:
-
         if os.path.isfile(
             ruta
         ):
-
             return ruta
-
 
     return None
 
@@ -386,7 +320,6 @@ def detectar_libreoffice_sistema():
         r"C:\Program Files (x86)\LibreOffice\program\soffice.exe"
     ]
 
-
     return buscar_ejecutable(
         [
             "soffice.com",
@@ -402,14 +335,10 @@ def detectar_libreoffice_sistema():
 # ================================================================
 def detectar_libreoffice():
 
-    ruta_administrada = (
-        detectar_libreoffice_administrado()
-    )
+    ruta_administrada = detectar_libreoffice_administrado()
 
     if ruta_administrada:
-
         return ruta_administrada
-
 
     return detectar_libreoffice_sistema()
 
@@ -420,14 +349,10 @@ def detectar_libreoffice():
 def obtener_origen_libreoffice():
 
     if detectar_libreoffice_administrado():
-
         return "administrado"
 
-
     if detectar_libreoffice_sistema():
-
         return "sistema"
-
 
     return None
 
@@ -443,13 +368,10 @@ def detectar_imagemagick_administrado():
         "magick.exe"
     )
 
-
     if os.path.isfile(
         ruta
     ):
-
         return ruta
-
 
     return None
 
@@ -461,7 +383,6 @@ def detectar_imagemagick_sistema():
 
     rutas_comunes = []
 
-
     carpetas_programas = [
         os.environ.get(
             "ProgramFiles"
@@ -471,13 +392,9 @@ def detectar_imagemagick_sistema():
         )
     ]
 
-
     for carpeta_programas in carpetas_programas:
-
         if not carpeta_programas:
-
             continue
-
 
         rutas_comunes.append(
             os.path.join(
@@ -486,7 +403,6 @@ def detectar_imagemagick_sistema():
                 "magick.exe"
             )
         )
-
 
         rutas_versionadas = glob.glob(
             os.path.join(
@@ -504,7 +420,6 @@ def detectar_imagemagick_sistema():
             rutas_versionadas
         )
 
-
     return buscar_ejecutable(
         [
             "magick.exe",
@@ -519,15 +434,10 @@ def detectar_imagemagick_sistema():
 # ================================================================
 def detectar_imagemagick():
 
-    ruta_administrada = (
-        detectar_imagemagick_administrado()
-    )
-
+    ruta_administrada = detectar_imagemagick_administrado()
 
     if ruta_administrada:
-
         return ruta_administrada
-
 
     return detectar_imagemagick_sistema()
 
@@ -538,14 +448,10 @@ def detectar_imagemagick():
 def obtener_origen_imagemagick():
 
     if detectar_imagemagick_administrado():
-
         return "administrado"
 
-
     if detectar_imagemagick_sistema():
-
         return "sistema"
-
 
     return None
 
@@ -561,13 +467,10 @@ def detectar_pandoc_administrado():
         "pandoc.exe"
     )
 
-
     if os.path.isfile(
         ruta
     ):
-
         return ruta
-
 
     return None
 
@@ -579,17 +482,11 @@ def detectar_pandoc_sistema():
 
     rutas_comunes = []
 
-
-    # ----------------------------------- #
-    #       Instalación de usuario        #
-    # ----------------------------------- #
-
     local_appdata = os.environ.get(
         "LOCALAPPDATA"
     )
 
     if local_appdata:
-
         rutas_comunes.append(
             os.path.join(
                 local_appdata,
@@ -598,17 +495,11 @@ def detectar_pandoc_sistema():
             )
         )
 
-
-    # ----------------------------------- #
-    #      Instalaciones generales        #
-    # ----------------------------------- #
-
     program_files = os.environ.get(
         "ProgramFiles"
     )
 
     if program_files:
-
         rutas_comunes.append(
             os.path.join(
                 program_files,
@@ -617,13 +508,11 @@ def detectar_pandoc_sistema():
             )
         )
 
-
     program_files_x86 = os.environ.get(
         "ProgramFiles(x86)"
     )
 
     if program_files_x86:
-
         rutas_comunes.append(
             os.path.join(
                 program_files_x86,
@@ -632,17 +521,11 @@ def detectar_pandoc_sistema():
             )
         )
 
-
-    # ----------------------------------- #
-    #        Instalación por Cabal        #
-    # ----------------------------------- #
-
     appdata = os.environ.get(
         "APPDATA"
     )
 
     if appdata:
-
         rutas_comunes.append(
             os.path.join(
                 appdata,
@@ -651,7 +534,6 @@ def detectar_pandoc_sistema():
                 "pandoc.exe"
             )
         )
-
 
     return buscar_ejecutable(
         [
@@ -667,15 +549,10 @@ def detectar_pandoc_sistema():
 # ================================================================
 def detectar_pandoc():
 
-    ruta_administrada = (
-        detectar_pandoc_administrado()
-    )
-
+    ruta_administrada = detectar_pandoc_administrado()
 
     if ruta_administrada:
-
         return ruta_administrada
-
 
     return detectar_pandoc_sistema()
 
@@ -686,14 +563,10 @@ def detectar_pandoc():
 def obtener_origen_pandoc():
 
     if detectar_pandoc_administrado():
-
         return "administrado"
 
-
     if detectar_pandoc_sistema():
-
         return "sistema"
-
 
     return None
 
@@ -707,7 +580,6 @@ def detectar_7zip_administrado():
         obtener_carpeta_motores(),
         "7zip"
     )
-
 
     rutas = [
         os.path.join(
@@ -724,15 +596,11 @@ def detectar_7zip_administrado():
         )
     ]
 
-
     for ruta in rutas:
-
         if os.path.isfile(
             ruta
         ):
-
             return ruta
-
 
     return None
 
@@ -746,7 +614,6 @@ def detectar_7zip_sistema():
         r"C:\Program Files\7-Zip\7z.exe",
         r"C:\Program Files (x86)\7-Zip\7z.exe"
     ]
-
 
     return buscar_ejecutable(
         [
@@ -766,15 +633,10 @@ def detectar_7zip_sistema():
 # ================================================================
 def detectar_7zip():
 
-    ruta_administrada = (
-        detectar_7zip_administrado()
-    )
-
+    ruta_administrada = detectar_7zip_administrado()
 
     if ruta_administrada:
-
         return ruta_administrada
-
 
     return detectar_7zip_sistema()
 
@@ -785,14 +647,10 @@ def detectar_7zip():
 def obtener_origen_7zip():
 
     if detectar_7zip_administrado():
-
         return "administrado"
 
-
     if detectar_7zip_sistema():
-
         return "sistema"
-
 
     return None
 
@@ -808,7 +666,6 @@ def detectar_winrar():
         r"C:\Program Files (x86)\WinRAR\RAR.exe",
         r"C:\Program Files (x86)\WinRAR\WinRAR.exe"
     ]
-
 
     return buscar_ejecutable(
         [
@@ -833,7 +690,6 @@ def detectar_ffmpeg():
         )
     ]
 
-
     return buscar_ejecutable(
         [
             "ffmpeg.exe",
@@ -856,11 +712,10 @@ def detectar_capacidades():
         "pypdfium2": detectar_pdfium(),
         "openpyxl": detectar_openpyxl(),
         "pywin32": detectar_pywin32(),
-
-        # Aspose
-        "aspose_pdf": detectar_aspose_pdf(),
-        "aspose_pdf_version": obtener_version_aspose_pdf(),
-        "aspose_pdf_licencia": detectar_licencia_aspose_pdf(),
+        "pdfplumber": detectar_pdfplumber(),
+        "pikepdf": detectar_pikepdf(),
+        "python_docx": detectar_python_docx(),
+        "lxml": detectar_lxml(),
 
         # Microsoft Office
         "microsoft_word": detectar_microsoft_word(),

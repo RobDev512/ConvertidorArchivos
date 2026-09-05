@@ -10,7 +10,7 @@ NOMBRE_APLICACION = "Convertidor de Archivos"
 
 NOMBRE_EJECUTABLE = "ConvertidorArchivos"
 
-VERSION_APLICACION = "1.1.0"
+VERSION_APLICACION = "1.1.1"
 
 ORGANIZACION_APLICACION = "Robert"
 

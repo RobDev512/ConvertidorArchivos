@@ -59,6 +59,10 @@ from conversiones.pdf import (
     comprobar_pdf_disponible
 )
 
+from conversiones.pdf_docx import (
+    ConversionPDFDOCXCancelada
+)
+
 
 # ----------------------------------- #
 #       Extensiones de salida         #
@@ -169,9 +173,27 @@ EXTENSIONES_SALIDA = {
 
 
 # ================================================================
+# COMPROBAR CANCELACIÓN
+# ================================================================
+def comprobar_cancelacion(
+    callback_cancelacion
+):
+
+    if (
+        callback_cancelacion
+        and callback_cancelacion()
+    ):
+        raise ConversionPDFDOCXCancelada(
+            "Conversión cancelada por el usuario."
+        )
+
+
+# ================================================================
 # OBTENER EXTENSIÓN DE DESTINO
 # ================================================================
-def obtener_extension_destino(formato_destino):
+def obtener_extension_destino(
+    formato_destino
+):
 
     formato_destino = formato_destino.upper()
 
@@ -180,7 +202,6 @@ def obtener_extension_destino(formato_destino):
     )
 
     if not extension:
-
         raise ValueError(
             f"No se conoce la extensión correspondiente "
             f"a {formato_destino}."
@@ -203,8 +224,6 @@ def obtener_extension_resultado(
 
     formato_destino = formato_destino.upper()
 
-    # PDF multipágina convertido a imágenes
-    # genera un ZIP
     if (
         formato_origen == "PDF"
         and formato_destino in FORMATOS_IMAGEN_PDF
@@ -215,7 +234,6 @@ def obtener_extension_resultado(
     ):
         return ".zip"
 
-    # Resto de conversiones
     return obtener_extension_destino(
         formato_destino
     )
@@ -244,13 +262,11 @@ def obtener_nombre_resultado_sugerido(
         formato_destino
     )
 
-    # PDF multipágina a imágenes
     if (
         formato_origen == "PDF"
         and formato_destino in FORMATOS_IMAGEN_PDF
         and extension == ".zip"
     ):
-
         return (
             f"{nombre_base}_"
             f"{formato_destino.lower()}"
@@ -282,17 +298,12 @@ def conversion_implementada(
         formato_destino
     )
 
-
-    # Imágenes
     if tipo_operacion == "conversion_imagen":
-
         return conversion_imagen_implementada(
             ruta_origen,
             formato_destino
         )
 
-
-    # Minecraft
     formatos_minecraft = {
         "MCPACK",
         "MCADDON",
@@ -301,7 +312,6 @@ def conversion_implementada(
     }
 
     if tipo_operacion == "cambio_extension":
-
         if (
             formato_origen == "ZIP"
             and formato_destino in formatos_minecraft
@@ -314,69 +324,47 @@ def conversion_implementada(
         ):
             return True
 
-
-    # JAR
     if tipo_operacion == "conversion_jar":
-
         return conversion_jar_implementada(
             ruta_origen,
             formato_destino
         )
 
-
-    # Comprimidos
     if tipo_operacion == "conversion_comprimido":
-
         return conversion_comprimido_implementada(
             ruta_origen,
             formato_destino
         )
 
-
-    # Documentos
     if tipo_operacion == "conversion_documento_texto":
-
         return conversion_documento_texto_implementada(
             ruta_origen,
             formato_destino
         )
 
-
-    # Hojas de cálculo
     if tipo_operacion == "conversion_hoja_calculo":
-
         return conversion_hoja_calculo_implementada(
             ruta_origen,
             formato_destino
         )
 
-
-    # Presentaciones
     if tipo_operacion == "conversion_presentacion":
-
         return conversion_presentacion_implementada(
             ruta_origen,
             formato_destino
         )
 
-
-    # Libros
     if tipo_operacion == "conversion_libro":
-
         return conversion_libro_implementada(
             ruta_origen,
             formato_destino
         )
 
-
-    # PDF
     if tipo_operacion == "conversion_pdf":
-
         return conversion_pdf_implementada(
             ruta_origen,
             formato_destino
         )
-
 
     return False
 
@@ -389,98 +377,69 @@ def comprobar_conversion_disponible(
     formato_destino
 ):
 
-    # Comprobar implementación
     if not conversion_implementada(
         ruta_origen,
         formato_destino
     ):
-
         return (
             False,
             f"La conversión a {formato_destino} está contemplada "
             f"por la aplicación, pero todavía no ha sido implementada."
         )
 
-
     tipo_operacion = obtener_tipo_operacion(
         ruta_origen,
         formato_destino
     )
 
-
-    # Imagen
     if tipo_operacion == "conversion_imagen":
-
         return comprobar_imagen_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # JAR
     if tipo_operacion == "conversion_jar":
-
         return comprobar_jar_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # Comprimido
     if tipo_operacion == "conversion_comprimido":
-
         return comprobar_comprimido_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # Documento
     if tipo_operacion == "conversion_documento_texto":
-
         return comprobar_documento_texto_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # Hoja de cálculo
     if tipo_operacion == "conversion_hoja_calculo":
-
         return comprobar_hoja_calculo_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # Presentación
     if tipo_operacion == "conversion_presentacion":
-
         return comprobar_presentacion_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # Libro
     if tipo_operacion == "conversion_libro":
-
         return comprobar_libro_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # PDF
     if tipo_operacion == "conversion_pdf":
-
         return comprobar_pdf_disponible(
             ruta_origen,
             formato_destino
         )
 
-
-    # ZIP / Minecraft
     return True, None
 
 
@@ -497,8 +456,6 @@ def crear_ruta_temporal(
         ruta_destino
     )
 
-    # Importante: puede ser diferente del formato
-    # solicitado, por ejemplo PDF → JPG multipágina
     extension = obtener_extension_resultado(
         ruta_origen,
         formato_destino
@@ -529,98 +486,77 @@ def ejecutar_conversion(
     ruta_destino,
     formato_destino,
     tipo_operacion,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
 
-    # Imagen
-    if tipo_operacion == "conversion_imagen":
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
+    if tipo_operacion == "conversion_imagen":
         return convertir_imagen(
             ruta_origen,
             ruta_destino,
             formato_destino
         )
 
-
-    # ZIP / Minecraft
     if tipo_operacion == "cambio_extension":
-
         return convertir_contenedor_zip(
             ruta_origen,
             ruta_destino
         )
 
-
-    # JAR
     if tipo_operacion == "conversion_jar":
-
         return convertir_jar(
             ruta_origen,
             ruta_destino,
             formato_destino
         )
 
-
-    # Comprimido
     if tipo_operacion == "conversion_comprimido":
-
         return convertir_comprimido(
             ruta_origen,
             ruta_destino,
             formato_destino
         )
 
-
-    # Documento
     if tipo_operacion == "conversion_documento_texto":
-
         return convertir_documento_texto(
             ruta_origen,
             ruta_destino,
             formato_destino
         )
 
-
-    # Hoja de cálculo
     if tipo_operacion == "conversion_hoja_calculo":
-
         return convertir_hoja_calculo(
             ruta_origen,
             ruta_destino,
             formato_destino
         )
 
-
-    # Presentación
     if tipo_operacion == "conversion_presentacion":
-
         return convertir_presentacion(
             ruta_origen,
             ruta_destino,
             formato_destino
         )
 
-
-    # Libro
     if tipo_operacion == "conversion_libro":
-
         return convertir_libro(
             ruta_origen,
             ruta_destino,
             formato_destino
         )
 
-
-    # PDF
     if tipo_operacion == "conversion_pdf":
-
         return convertir_pdf(
             ruta_origen,
             ruta_destino,
             formato_destino,
-            callback_progreso
+            callback_progreso,
+            callback_cancelacion
         )
-
 
     raise NotImplementedError(
         f"El tipo de operación '{tipo_operacion}' "
@@ -635,8 +571,13 @@ def convertir_archivo(
     ruta_origen,
     ruta_destino,
     formato_destino,
-    callback_progreso=None
+    callback_progreso=None,
+    callback_cancelacion=None
 ):
+
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     disponible, mensaje = comprobar_conversion_disponible(
         ruta_origen,
@@ -644,17 +585,18 @@ def convertir_archivo(
     )
 
     if not disponible:
-
         raise RuntimeError(
             mensaje
         )
 
+    comprobar_cancelacion(
+        callback_cancelacion
+    )
 
     tipo_operacion = obtener_tipo_operacion(
         ruta_origen,
         formato_destino
     )
-
 
     ruta_temporal = crear_ruta_temporal(
         ruta_origen,
@@ -662,59 +604,55 @@ def convertir_archivo(
         formato_destino
     )
 
-
     try:
-
         ejecutar_conversion(
             ruta_origen,
             ruta_temporal,
             formato_destino,
             tipo_operacion,
-            callback_progreso
+            callback_progreso,
+            callback_cancelacion
         )
 
+        comprobar_cancelacion(
+            callback_cancelacion
+        )
 
         if not os.path.isfile(
             ruta_temporal
         ):
-
             raise RuntimeError(
                 "La conversión terminó sin generar un archivo."
             )
 
-
         if os.path.getsize(
             ruta_temporal
         ) == 0:
-
             raise RuntimeError(
                 "La conversión generó un archivo vacío."
             )
 
+        comprobar_cancelacion(
+            callback_cancelacion
+        )
 
         os.replace(
             ruta_temporal,
             ruta_destino
         )
 
-
     except Exception:
-
         if os.path.exists(
             ruta_temporal
         ):
-
             try:
-
                 os.remove(
                     ruta_temporal
                 )
 
             except OSError:
-
                 pass
 
         raise
-
 
     return ruta_destino

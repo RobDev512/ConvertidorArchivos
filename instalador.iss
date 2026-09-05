@@ -1,18 +1,18 @@
 ; ================================================================
-; CONVERTIDOR DE ARCHIVOS 1.1.0
+; CONVERTIDOR DE ARCHIVOS 1.1.1
 ; INSTALADOR OFICIAL
 ; ================================================================
 
 
 #define NombreAplicacion "Convertidor de Archivos"
-#define VersionAplicacion "1.1.0"
+#define VersionAplicacion "1.1.1"
 #define EjecutableAplicacion "ConvertidorArchivos.exe"
 #define CarpetaCompilada "dist\ConvertidorArchivos"
-#define NombreInstalador "ConvertidorArchivos_Setup_1.1.0"
+#define NombreInstalador "ConvertidorArchivos_Setup_1.1.1"
 
 
 ; ================================================================
-; CONFIGURACIÓN GENERAL
+; CONFIGURACION GENERAL
 ; ================================================================
 
 [Setup]
@@ -44,6 +44,7 @@ WizardStyle=modern
 
 DisableWelcomePage=no
 DisableProgramGroupPage=yes
+DisableReadyPage=no
 
 AlwaysShowComponentsList=yes
 FlatComponentsList=no
@@ -55,7 +56,11 @@ RestartApplications=no
 CreateAppDir=yes
 CreateUninstallRegKey=yes
 
-VersionInfoVersion=1.1.0.0
+UsePreviousAppDir=yes
+UsePreviousGroup=yes
+UsePreviousTasks=yes
+
+VersionInfoVersion=1.1.1.0
 VersionInfoProductName={#NombreAplicacion}
 VersionInfoProductVersion={#VersionAplicacion}
 VersionInfoDescription=Instalador de {#NombreAplicacion}
@@ -73,7 +78,7 @@ SetupIconFile=recursos\iconos\FileConverter.ico
 
 
 ; ================================================================
-; TIPOS DE INSTALACIÓN
+; TIPOS DE INSTALACION
 ; ================================================================
 
 [Types]
@@ -103,12 +108,22 @@ Name: "principal\documentos\libreoffice"; \
     Flags: fixed
 
 Name: "principal\imagenes"; \
-    Description: "Compatibilidad avanzada con imágenes"; \
+    Description: "Herramientas y compatibilidad avanzada con imágenes"; \
     Types: completa; \
     Flags: fixed
 
 Name: "principal\imagenes\imagemagick"; \
     Description: "ImageMagick"; \
+    Types: completa; \
+    Flags: fixed
+
+Name: "principal\imagenes\realesrgan"; \
+    Description: "Real-ESRGAN · Mejora de calidad con IA"; \
+    Types: completa; \
+    Flags: fixed
+
+Name: "principal\imagenes\quitarfondo"; \
+    Description: "Modelos IA · Quitar fondo"; \
     Types: completa; \
     Flags: fixed
 
@@ -139,20 +154,10 @@ Name: "principal\libros\pandoc"; \
 
 [Files]
 
-
-; ----------------------------------- ;
-;        Ejecutable principal          ;
-; ----------------------------------- ;
-
 Source: "{#CarpetaCompilada}\{#EjecutableAplicacion}"; \
     DestDir: "{app}"; \
     Flags: ignoreversion; \
     Components: principal
-
-
-; ----------------------------------- ;
-;     Dependencias internas Python     ;
-; ----------------------------------- ;
 
 Source: "{#CarpetaCompilada}\_internal\*"; \
     DestDir: "{app}\_internal"; \
@@ -181,6 +186,26 @@ Source: "{#CarpetaCompilada}\motores\imagemagick\*"; \
 
 
 ; ================================================================
+; REAL-ESRGAN
+; ================================================================
+
+Source: "{#CarpetaCompilada}\motores\realesrgan\*"; \
+    DestDir: "{app}\motores\realesrgan"; \
+    Flags: ignoreversion recursesubdirs createallsubdirs; \
+    Components: principal\imagenes\realesrgan
+
+
+; ================================================================
+; QUITAR FONDO
+; ================================================================
+
+Source: "{#CarpetaCompilada}\motores\quitar_fondo\*"; \
+    DestDir: "{app}\motores\quitar_fondo"; \
+    Flags: ignoreversion recursesubdirs createallsubdirs; \
+    Components: principal\imagenes\quitarfondo
+
+
+; ================================================================
 ; 7-ZIP
 ; ================================================================
 
@@ -201,7 +226,7 @@ Source: "{#CarpetaCompilada}\motores\pandoc\*"; \
 
 
 ; ================================================================
-; LICENCIAS Y DOCUMENTACIÓN
+; LICENCIAS Y DOCUMENTACION
 ; ================================================================
 
 Source: "{#CarpetaCompilada}\licencias_terceros\*"; \
@@ -218,6 +243,17 @@ Source: "{#CarpetaCompilada}\LICENSE.txt"; \
     DestDir: "{app}"; \
     Flags: ignoreversion skipifsourcedoesntexist; \
     Components: principal
+
+
+; ================================================================
+; LIMPIEZA AL ACTUALIZAR
+; ================================================================
+
+[InstallDelete]
+
+Type: filesandordirs; Name: "{app}\_internal"
+Type: filesandordirs; Name: "{app}\motores"
+Type: filesandordirs; Name: "{app}\licencias_terceros"
 
 
 ; ================================================================
@@ -258,3 +294,377 @@ Filename: "{app}\{#EjecutableAplicacion}"; \
     Description: "Ejecutar Convertidor de Archivos"; \
     WorkingDir: "{app}"; \
     Flags: nowait postinstall skipifsilent
+
+
+; ================================================================
+; INFORMACION DE TAMANO Y ACTUALIZACION
+; ================================================================
+
+[Code]
+
+var
+  PaginaTamano: TWizardPage;
+  EtiquetaTipo: TNewStaticText;
+  EtiquetaPaquete: TNewStaticText;
+  EtiquetaInstalacion: TNewStaticText;
+  EtiquetaNota: TNewStaticText;
+
+
+// ================================================================
+// FORMATEAR BYTES
+// ================================================================
+
+function FormatearBytes(
+  Tamano: Int64
+): String;
+begin
+
+  if Tamano >= 1073741824 then
+  begin
+
+    Result :=
+      IntToStr(
+        (Tamano + 536870912) div 1073741824
+      )
+      + ' GB';
+
+  end
+  else if Tamano >= 1048576 then
+  begin
+
+    Result :=
+      IntToStr(
+        (Tamano + 524288) div 1048576
+      )
+      + ' MB';
+
+  end
+  else if Tamano >= 1024 then
+  begin
+
+    Result :=
+      IntToStr(
+        (Tamano + 512) div 1024
+      )
+      + ' KB';
+
+  end
+  else
+  begin
+
+    Result :=
+      IntToStr(
+        Tamano
+      )
+      + ' bytes';
+
+  end;
+
+end;
+
+
+// ================================================================
+// OBTENER VERSION INSTALADA
+// ================================================================
+
+function ObtenerVersionInstalada(): String;
+var
+  ClaveDesinstalacion: String;
+begin
+
+  ClaveDesinstalacion :=
+    'Software\Microsoft\Windows\CurrentVersion\Uninstall\' +
+    '{9D720930-63BC-46AD-A611-5B268301EA19}_is1';
+
+  Result := '';
+
+
+  // ----------------------------------- //
+  //         Registro de 64 bits         //
+  // ----------------------------------- //
+
+  if RegQueryStringValue(
+    HKLM64,
+    ClaveDesinstalacion,
+    'DisplayVersion',
+    Result
+  ) then
+  begin
+
+    Exit;
+
+  end;
+
+
+  // ----------------------------------- //
+  //         Registro de 32 bits         //
+  // ----------------------------------- //
+
+  if RegQueryStringValue(
+    HKLM32,
+    ClaveDesinstalacion,
+    'DisplayVersion',
+    Result
+  ) then
+  begin
+
+    Exit;
+
+  end;
+
+
+  // ----------------------------------- //
+  //         Registro de usuario         //
+  // ----------------------------------- //
+
+  if RegQueryStringValue(
+    HKCU,
+    ClaveDesinstalacion,
+    'DisplayVersion',
+    Result
+  ) then
+  begin
+
+    Exit;
+
+  end;
+
+end;
+
+
+// ================================================================
+// ACTUALIZAR PAGINA DE TAMANO
+// ================================================================
+
+procedure ActualizarPaginaTamano();
+var
+  TamanoInstalador: Int64;
+  VersionAnterior: String;
+begin
+
+  VersionAnterior :=
+    ObtenerVersionInstalada();
+
+
+  // ----------------------------------- //
+  //      Instalacion o actualizacion    //
+  // ----------------------------------- //
+
+  if VersionAnterior <> '' then
+  begin
+
+    EtiquetaTipo.Caption :=
+      'Actualización detectada: '
+      + VersionAnterior
+      + ' → {#VersionAplicacion}';
+
+  end
+  else
+  begin
+
+    EtiquetaTipo.Caption :=
+      'Instalación nueva de la versión '
+      + '{#VersionAplicacion}';
+
+  end;
+
+
+  // ----------------------------------- //
+  //        Tamano del instalador        //
+  // ----------------------------------- //
+
+  if FileSize64(
+    ExpandConstant(
+      '{srcexe}'
+    ),
+    TamanoInstalador
+  ) then
+  begin
+
+    EtiquetaPaquete.Caption :=
+      'Tamaño del paquete: '
+      + FormatearBytes(
+          TamanoInstalador
+        );
+
+  end
+  else
+  begin
+
+    EtiquetaPaquete.Caption :=
+      'Tamaño del paquete: no disponible';
+
+  end;
+
+
+  // ----------------------------------- //
+  //        Espacio de instalacion       //
+  // ----------------------------------- //
+
+  EtiquetaInstalacion.Caption :=
+    WizardForm.ComponentsDiskSpaceLabel.Caption;
+
+end;
+
+
+// ================================================================
+// CREAR PAGINA DE TAMANO
+// ================================================================
+
+procedure InitializeWizard();
+begin
+
+  PaginaTamano :=
+    CreateCustomPage(
+      wpSelectComponents,
+      'Tamaño de la instalación',
+      'Revisa el tamaño antes de continuar.'
+    );
+
+
+  // ----------------------------------- //
+  //        Tipo de instalacion          //
+  // ----------------------------------- //
+
+  EtiquetaTipo :=
+    TNewStaticText.Create(
+      PaginaTamano
+    );
+
+  EtiquetaTipo.Parent :=
+    PaginaTamano.Surface;
+
+  EtiquetaTipo.Left :=
+    0;
+
+  EtiquetaTipo.Top :=
+    16;
+
+  EtiquetaTipo.Width :=
+    PaginaTamano.SurfaceWidth;
+
+  EtiquetaTipo.AutoSize :=
+    False;
+
+  EtiquetaTipo.WordWrap :=
+    True;
+
+  EtiquetaTipo.Height :=
+    36;
+
+
+  // ----------------------------------- //
+  //        Tamano del paquete           //
+  // ----------------------------------- //
+
+  EtiquetaPaquete :=
+    TNewStaticText.Create(
+      PaginaTamano
+    );
+
+  EtiquetaPaquete.Parent :=
+    PaginaTamano.Surface;
+
+  EtiquetaPaquete.Left :=
+    0;
+
+  EtiquetaPaquete.Top :=
+    68;
+
+  EtiquetaPaquete.Width :=
+    PaginaTamano.SurfaceWidth;
+
+  EtiquetaPaquete.AutoSize :=
+    False;
+
+  EtiquetaPaquete.Height :=
+    24;
+
+
+  // ----------------------------------- //
+  //        Espacio requerido            //
+  // ----------------------------------- //
+
+  EtiquetaInstalacion :=
+    TNewStaticText.Create(
+      PaginaTamano
+    );
+
+  EtiquetaInstalacion.Parent :=
+    PaginaTamano.Surface;
+
+  EtiquetaInstalacion.Left :=
+    0;
+
+  EtiquetaInstalacion.Top :=
+    104;
+
+  EtiquetaInstalacion.Width :=
+    PaginaTamano.SurfaceWidth;
+
+  EtiquetaInstalacion.AutoSize :=
+    False;
+
+  EtiquetaInstalacion.WordWrap :=
+    True;
+
+  EtiquetaInstalacion.Height :=
+    40;
+
+
+  // ----------------------------------- //
+  //              Nota                   //
+  // ----------------------------------- //
+
+  EtiquetaNota :=
+    TNewStaticText.Create(
+      PaginaTamano
+    );
+
+  EtiquetaNota.Parent :=
+    PaginaTamano.Surface;
+
+  EtiquetaNota.Left :=
+    0;
+
+  EtiquetaNota.Top :=
+    162;
+
+  EtiquetaNota.Width :=
+    PaginaTamano.SurfaceWidth;
+
+  EtiquetaNota.AutoSize :=
+    False;
+
+  EtiquetaNota.WordWrap :=
+    True;
+
+  EtiquetaNota.Height :=
+    72;
+
+  EtiquetaNota.Caption :=
+    'El paquete incluye los motores y modelos de IA necesarios '
+    + 'para que las herramientas funcionen de forma local. '
+    + 'En una actualización se utiliza el instalador completo, '
+    + 'aunque los archivos anteriores se reemplazan automáticamente.';
+
+end;
+
+
+// ================================================================
+// CAMBIAR PAGINA
+// ================================================================
+
+procedure CurPageChanged(
+  CurPageID: Integer
+);
+begin
+
+  if CurPageID = PaginaTamano.ID then
+  begin
+
+    ActualizarPaginaTamano();
+
+  end;
+
+end;
