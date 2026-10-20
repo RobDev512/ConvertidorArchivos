@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 2,
+  "pages": [
+    {
+      "id": "convertidor-archivos",
+      "theme": "theme-desktop",
+      "title": "Convertidor de Archivos",
+      "documentTitle": "Convertidor de Archivos · RobDev512",
+      "metaDescription": "Convertidor de Archivos, aplicación de escritorio para Windows desarrollada por RobDev512.",
+      "eyebrow": "Aplicación de escritorio · Windows",
+      "logo": {
+        "src": "./assets/convertidor-archivos-logo.png",
+        "alt": "Logo de Convertidor de Archivos"
+      },
+      "repository": {
+        "label": "GitHub",
+        "url": "https://github.com/RobDev512/ConvertidorArchivos",
+        "external": true
+      },
+      "hero": {
+        "titleLines": [
+          "Convertidor",
+          "de Archivos"
+        ],
+        "description": "Conversión y herramientas locales para documentos, imágenes, PDF y otros formatos, con procesamiento especializado ejecutado directamente en Windows.",
+        "actions": [
+          {
+            "label": "Descargar 1.1.1",
+            "url": "https://github.com/RobDev512/ConvertidorArchivos/releases/download/v1.1.1/ConvertidorArchivos_Setup_1.1.1.exe",
+            "style": "primary",
+            "external": true
+          },
+          {
+            "label": "Ver roadmap",
+            "url": "#roadmap-explorer",
+            "style": "secondary",
+            "external": false
+          }
+        ],
+        "meta": [
+          {
+            "strong": "v1.1.1",
+            "small": "Herramientas de imágenes"
+          },
+          {
+            "strong": "Windows 64-bit",
+            "small": "Aplicación de escritorio"
+          },
+          {
+            "strong": "Procesamiento local",
+            "small": "Python · PySide6"
+          }
+        ]
+      },
+      "features": [
+        {
+          "title": "Conversión",
+          "text": "Documentos, imágenes, PDF, libros, archivos comprimidos, formatos de marcado y más."
+        },
+        {
+          "title": "Herramientas PDF",
+          "text": "Unión, división, extracción, reordenamiento, compresión y conversión PDF → DOCX."
+        },
+        {
+          "title": "Herramientas de imagen",
+          "text": "Redimensionado, compresión, PDF desde imágenes, mejora de resolución y eliminación de fondos."
+        },
+        {
+          "title": "Offline first",
+          "text": "Motores y modelos locales para procesar archivos sin depender de servicios externos."
+        }
+      ],
+      "release": {
+        "kicker": "Release estable",
+        "version": "v1.1.1",
+        "summary": "La versión vigente consolida la conversión general, las herramientas PDF y el procesamiento de imágenes como una base estable para las siguientes expansiones.",
+        "status": "Aplicada",
+        "title": "Herramientas de imágenes",
+        "items": [
+          "Redimensionado y compresión de imágenes.",
+          "Creación de PDF a partir de imágenes.",
+          "Mejora de resolución mediante Real-ESRGAN local.",
+          "Eliminación de fondos mediante modelos locales.",
+          "Procesamiento por lotes en herramientas compatibles."
+        ],
+        "link": {
+          "label": "Explorar releases en GitHub →",
+          "url": "https://github.com/RobDev512/ConvertidorArchivos/releases",
+          "external": true
+        }
+      },
+      "roadmap": {
+        "kicker": "Roadmap dinámico",
+        "title": "Explora el futuro del Convertidor",
+        "description": "Esta vista se genera directamente desde el ROADMAP.md del proyecto. Al actualizar el documento, la página refleja automáticamente las versiones y estados nuevos."
+      },
+      "nextRelease": {
+        "kicker": "Siguiente versión",
+        "title": "v1.1.2 · Soporte multimedia",
+        "text": "La siguiente etapa incorpora audio, video y GIF mediante FFmpeg y ffprobe, incluyendo conversión, extracción de fotogramas, recorte, unión, compresión y cambios de velocidad."
+      },
+      "footer": {
+        "left": "Convertidor de Archivos · Proyecto personal en evolución",
+        "right": {
+          "label": "Descargar",
+          "url": "https://github.com/RobDev512/ConvertidorArchivos/releases/download/v1.1.1/ConvertidorArchivos_Setup_1.1.1.exe",
+          "external": true
+        }
+      }
+    }
+  ]
+}
