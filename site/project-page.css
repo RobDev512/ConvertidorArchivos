@@ -2337,8 +2337,6 @@ body::after {
   filter:
     blur(72px);
 
-  will-change:
-    transform;
 }
 
 
@@ -3161,3 +3159,27 @@ body.theme-taskpilot {
 /* =========================================================
    END TASKPILOT THEME
    ========================================================= */
+
+/* =========================================================
+   PROJECT PAGE · PERFORMANCE GUARD
+   ========================================================= */
+
+@media (max-width: 900px), (hover: none), (pointer: coarse) {
+
+  body::before,
+  body::after {
+    animation: none !important;
+  }
+
+}
+
+
+/* =========================================================
+   PROJECT PAGE · PERFORMANCE PASS 2
+   ========================================================= */
+
+/* Mantiene los blobs visibles, pero detiene su desplazamiento continuo. */
+body::before,
+body::after {
+  animation: none !important;
+}
